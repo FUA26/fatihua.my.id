@@ -1,0 +1,147 @@
+---
+title: 'Nextjs: Setting Up Eslint and Prettier'
+date: '2023-10-07'
+lastmod: '2025-01-01'
+tags: ['next-js', 'eslint', 'prettier', 'setup']
+draft: false
+images: ['/static/images/banners/nextjs-eslint-prettier.webp']
+authors: [default']
+summary: Master clean code practices with a swift guide to integrating Eslint and Prettier in your Next.js setup.
+---
+
+## Introduction
+
+I've worked on lots of projects, and I've found that code consistency is really important. It makes debugging easier, improves readability and speeds up development, which is great! When we're working on projects that follow business standards and we're all working in teams, it's so important to keep the code consistent.
+
+That way, everyone on the team can understand and work with the code easily. I used to run into problems with code format and style, but I've figured out how to solve that now. But then I discovered ESLint and Prettier, and wow, did my code writing get better! So, if you're struggling with consistency, I'd really recommend taking a look at these tools. They're super helpful in getting used to writing code that's consistent throughout a project.
+
+In this guide, I'm going to walk you through how I set up ESLint and Prettier in my Next.js project to keep my code neat and tidy.
+
+## Prerequisites
+
+Before you get started, there are a few things you'll need to prepare for this guide:
+
+1. Node.js and package manager: Make sure you have Node.js installed on your system, which comes with npm (Node Package Manager). If not, you can install it from the official Node.js website.
+2. Next.js project: You must have already created a Next.js project. It is recommended that you read the official Next.js documentation for a deeper understanding of Next.js project concepts and settings.
+3. Code Editor: It is recommended that you use an editor such as VSCode that has extension support for ESLint and Prettier so that you can take full advantage of these tools.
+
+With these requirements in place, you are ready to move on to the next step of setting up ESLint and Prettier in your Next.js project.
+
+## **Step 1: Install ESLint and Prettier**
+
+To maintain code consistency and ensure high development quality, we need to install two important tools: ESLint for analyzing code and detecting potential errors, and Prettier for formatting code to make it cleaner and more readable. In this first step, we'll install both in your Next.js project so you can start maintaining code consistency easily and effectively.
+
+### Install ESLint
+
+To install ESLint, run the following command in a terminal:
+
+```bash
+npm install eslint --save-dev
+```
+
+Once the installation is complete, you will need to configure ESLint by running the following command:
+
+```bash
+npx eslint --init
+```
+
+This process will ask you a few questions to customize your ESLint configuration, such as the type of framework used and code style preferences.
+
+### Install Prettier
+
+To install Prettier, run the following command in a terminal:
+
+```bash
+npm install --save-dev prettier
+```
+
+Prettier will be used to automatically format your code.
+
+### Installing ESLint-Prettier Integration
+
+For ESLint and Prettier to work well together, you need to install the following plugins:
+
+```bash
+npm install --save-dev eslint-config-prettier eslint-plugin-prettier
+```
+
+## **Step 2: Configure ESLint**
+
+Once ESLint is installed, configure the .eslintrc.json file so that ESLint will work properly with Prettier.
+
+Create or modify the .eslintrc.json file with the following configuration:
+
+```json
+{
+  "extends": ["eslint:recommended", "plugin:react/recommended", "plugin:prettier/recommended"],
+  "plugins": ["react", "prettier"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
+  },
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "prettier/prettier": "error"
+  }
+}
+```
+
+This configuration ensures that ESLint and Prettier work together without conflict and apply consistent linting rules.
+
+## **Step 3: Configure Prettier**
+
+Create a .prettierrc file in the root directory of your project and add the following settings to customize the desired code formatting style:
+
+```json
+{
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5"
+}
+```
+
+These settings will cause Prettier to format your code with semicolons at the end of each statement, use single quotes, and add commas at the end of objects and arrays that have more than one element.
+
+## **Step 4: Add Scripts for Linting and Formatting**
+
+To make it easier to use ESLint and Prettier, add the following script to your package.json file:
+
+```json
+{
+  "scripts": {
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "format": "prettier --write ."
+  }
+}
+```
+
+## **Step 5: Enable Auto-Fixing on Save**
+
+For convenience, you can configure an editor like VSCode to automatically run ESLint and Prettier when you save a file. Here is how to configure the editor:
+
+### **Install VSCode extensions:**
+
+- ESLint: Install the ESLint extension to VSCode.
+- Prettier - code formatter: Install the Prettier extension to VSCode.
+
+### Enable auto fix on save:
+
+Add the following setting to the settings.json file in VSCode:
+
+```json
+{
+  "editor.formatOnSave": true,
+  "eslint.autoFixOnSave": true
+}
+```
+
+With this setting, you can rest assured that every time you save a file, ESLint and Prettier will automatically repair and format your code.
+
+## Conclusion
+
+By installing and configuring ESLint and Prettier, you've set yourself up well to keep the code in your Next.js project consistent. ESLint helps find potential problems and errors in the code, and Prettier makes sure the code format stays neat and readable. Together, they help boost productivity and development quality, especially in big teams. Now, you can focus on developing new features without stressing about code inconsistencies or formatting issues. Just remember to update the configuration as your project progresses to keep it consistent and efficient.
