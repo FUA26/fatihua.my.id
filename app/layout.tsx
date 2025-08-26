@@ -1,16 +1,44 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import {
+  Geist_Mono,
+  JetBrains_Mono,
+  Nunito,
+  Playpen_Sans,
+} from 'next/font/google'
+import clsx from 'clsx'
+import "@/css/globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const FONT_PLAYPEN_SANS = Playpen_Sans({
+  subsets: ['latin'],
+  display: 'swap',
+  weight: ['800'],
+  variable: '--font-playpen-sans',
+})
+
+const FONT_NUNITO = Nunito({
+  subsets: ['latin'],
+  display: 'swap',
+  style: ['normal', 'italic'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-nunito',
+})
+
+const FONT_GEIST = Geist_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  style: ['normal'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-geist',
+})
+
+const FONT_JETBRAINS_MONO = JetBrains_Mono({
+  weight: ['400', '500', '600'],
+  subsets: ['latin'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-jetbrains-mono',
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,10 +51,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className={clsx(
+      'w-full overflow-x-hidden scroll-smooth',
+      FONT_NUNITO.variable,
+      FONT_JETBRAINS_MONO.variable,
+      FONT_PLAYPEN_SANS.variable,
+      FONT_GEIST.variable,
+    )}>
+      <body>
         {children}
       </body>
     </html>
