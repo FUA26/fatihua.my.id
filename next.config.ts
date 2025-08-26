@@ -106,7 +106,7 @@ module.exports = () => {
         },
       ]
     },
-    webpack: (config: any ) => { 
+    webpack: (config) => {
       config.module.rules.push({
         test: /\.svg$/,
         use: [

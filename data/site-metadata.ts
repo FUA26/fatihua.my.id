@@ -22,7 +22,7 @@ export const SITE_METADATA = {
         'https://cloud.umami.is/share/vtt0ibwcrqs5IIak/www.fatihua.my.id',
     },
   },
-  
+
   search: {
     kbarConfigs: {
       // path to load documents to search
