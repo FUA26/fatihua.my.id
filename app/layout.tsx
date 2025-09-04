@@ -2,34 +2,18 @@
 
 import clsx from 'clsx'
 import type { Metadata, Viewport } from 'next'
-import {
-  Geist_Mono,
-  JetBrains_Mono,
-  Nunito,
-  Playpen_Sans,
-} from 'next/font/google'
+import { JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google'
 import '@/css/globals.css'
+import { UmamiAnalytics } from '@/components/analytics/umami'
+import { KBarSearchProvider } from '@/components/search/kbar-provider'
 import { SITE_METADATA } from '@/data/site-metadata'
+import { ThemeProviders } from './theme-providers'
 
-const FONT_PLAYPEN_SANS = Playpen_Sans({
+const FONT_SANS = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
-  weight: ['800'],
-  variable: '--font-playpen-sans',
-})
-const FONT_NUNITO = Nunito({
-  subsets: ['latin'],
-  display: 'swap',
-  style: ['normal', 'italic'],
-  weight: ['400', '500', '600', '700', '800'],
-  variable: '--font-nunito',
-})
-const FONT_GEIST = Geist_Mono({
-  subsets: ['latin'],
-  display: 'swap',
-  style: ['normal'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-geist',
+  variable: '--font-plusjakarta',
+  weight: ['200', '300', '400', '500', '600', '700', '800'],
 })
 const FONT_JB_MONO = JetBrains_Mono({
   weight: ['400', '500', '600'],
@@ -118,17 +102,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="id">
+    <html lang={SITE_METADATA.language} suppressHydrationWarning>
       <body
         className={clsx(
           'w-full overflow-x-hidden scroll-smooth antialiased',
-          FONT_NUNITO.variable,
           FONT_JB_MONO.variable,
-          FONT_PLAYPEN_SANS.variable,
-          FONT_GEIST.variable,
+          FONT_SANS.variable,
         )}
       >
-        {children}
+        <ThemeProviders>
+          <UmamiAnalytics
+            websiteId={SITE_METADATA.analytics.umamiAnalytics.websiteId}
+          />
+          <KBarSearchProvider configs={SITE_METADATA.search.kbarConfigs}>
+            <main className="mb-auto grow">{children}</main>
+          </KBarSearchProvider>
+        </ThemeProviders>
       </body>
     </html>
   )

@@ -7,7 +7,7 @@ export const SITE_METADATA = {
   language: 'en-us',
   locale: 'en-US',
   stickyNav: true,
-  theme: 'system', // system, dark or light
+  theme: 'light', // system, dark or light
   siteUrl: 'https://www.fatihua.my.id',
   siteRepo: 'https://github.com/FUA26/fatihua',
   siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.jpg`,
