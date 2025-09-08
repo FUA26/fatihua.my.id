@@ -51,9 +51,7 @@ export default function Hero() {
               ideas{' '}
             </HighlightUnderline>{' '}
             into{' '}
-            <span className="font-bold text-primary-500">
-              impactful solutions
-            </span>{' '}
+            <span className="font-bold text-primary">impactful solutions</span>{' '}
             through the power of code.
           </p>
 
