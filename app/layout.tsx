@@ -1,10 +1,14 @@
 // app/layout.tsx
-
+import '@/css/twemoji.css'
+import 'react-medium-image-zoom/dist/styles.css'
+import 'remark-github-blockquote-alert/alert.css'
 import clsx from 'clsx'
 import type { Metadata, Viewport } from 'next'
 import { JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google'
 import '@/css/globals.css'
 import { UmamiAnalytics } from '@/components/analytics/umami'
+import SiteFooter from '@/components/footer/SiteFooter'
+import Nav from '@/components/header/Nav'
 import { KBarSearchProvider } from '@/components/search/kbar-provider'
 import { SITE_METADATA } from '@/data/site-metadata'
 import { ThemeProviders } from './theme-providers'
@@ -115,7 +119,13 @@ export default function RootLayout({
             websiteId={SITE_METADATA.analytics.umamiAnalytics.websiteId}
           />
           <KBarSearchProvider configs={SITE_METADATA.search.kbarConfigs}>
+            <Nav />
             <main className="mb-auto grow">{children}</main>
+            <SiteFooter
+              authorName="FUA"
+              tagline="Crafting solutions that make ideas come alive."
+              lastUpdated="July 18, 2025 at 5:20 PM UTC+7"
+            />
           </KBarSearchProvider>
         </ThemeProviders>
       </body>

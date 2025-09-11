@@ -15,7 +15,7 @@ export function HighlightUnderline({
   active?: boolean
   className?: string
   duration?: number
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+
   [key: string]: any
 }) {
   return (

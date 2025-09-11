@@ -31,26 +31,30 @@ const groups: NavGroup[] = [
   {
     title: 'This site',
     links: [
-      { label: 'Analytics', href: '/analytics' },
-      { label: 'RSS', href: '/rss.xml' },
-      {
-        label: 'Source code',
-        href: 'https://github.com/yourname/yourrepo',
-        external: true,
-      },
-    ],
-  },
-  {
-    title: 'Resources',
-    links: [
       {
         label: 'Analytics ↗',
-        href: 'https://bsky.app/profile/yourhandle',
+        href: 'https://cloud.umami.is/share/NJ9CmSsopMVFKpd8/www.fatihua.my.id',
         external: true,
       },
-      { label: 'RSS ↗', href: 'https://monkeytype.com/', external: true },
+      { label: 'RSS ↗', href: '/rss.xml' },
+      {
+        label: 'Source code',
+        href: 'https://github.com/fua26/fatihua.my.id',
+        external: true,
+      },
     ],
   },
+  // {
+  //   title: 'Resources',
+  //   links: [
+  //     {
+  //       label: 'Analytics ↗',
+  //       href: 'https://bsky.app/profile/yourhandle',
+  //       external: true,
+  //     },
+  //     { label: 'RSS ↗', href: 'https://monkeytype.com/', external: true },
+  //   ],
+  // },
 ]
 
 // Simple outline icons (SVG inline) agar tanpa dependensi
@@ -163,7 +167,7 @@ export default function SiteFooter({
 
           {/* Right: nav groups */}
           <div className="order-1 md:order-2 md:col-span-7">
-            <div className="grid grid-cols-2 gap-8 sm:grid-cols-3">
+            <div className="grid grid-cols-2 gap-8 sm:grid-cols-2">
               {groups.map((g) => (
                 <div key={g.title}>
                   <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-200">

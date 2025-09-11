@@ -2,6 +2,7 @@
 'use client'
 
 import clsx from 'clsx'
+import type { Blog, Snippet } from 'contentlayer/generated'
 import { NotebookTabsIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -14,19 +15,110 @@ type Post = {
   title: string
   description: string
   href: string
-  image?: string // optional (posts usually have)
+  image?: string
   imageAlt?: string
   tags?: string[]
 }
 
 type Props = {
-  posts: Post[]
-  snippets: Post[] // reuse shape
+  // Boleh sudah Post[] (hasil map), atau masih raw dari Contentlayer—dua-duanya akan dinormalisasi.
+  posts: (Blog | Post)[]
+  snippets: (Snippet | Post)[]
+}
+
+/** Format tanggal ISO → "07 Okt 2023" (lokal Indonesia) */
+function formatDate(idate?: string) {
+  if (!idate) return ''
+  const d = new Date(idate)
+  if (Number.isNaN(d.getTime())) return idate
+  return new Intl.DateTimeFormat('id-ID', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(d)
+}
+
+/** Normalisasi 1 item (raw Contentlayer atau Post) menjadi Post */
+function normalizeItem(raw: Blog | Snippet | Post): Post {
+  // Ambil sumber nilai dengan fallback yang masuk akal
+  const title = raw.title ?? 'Untitled'
+  const date = raw.date ?? ''
+  const description =
+    'description' in raw ? raw.description : (raw.summary ?? '')
+
+  // Handle reading time - different structure for Blog/Snippet vs Post
+  let readTime: string | undefined
+  if ('readTime' in raw) {
+    readTime = raw.readTime
+  } else if ('readingTime' in raw) {
+    if (
+      typeof raw.readingTime === 'object' &&
+      raw.readingTime &&
+      'text' in raw.readingTime
+    ) {
+      readTime = raw.readingTime.text
+    } else if (typeof raw.readingTime === 'string') {
+      readTime = raw.readingTime
+    }
+  }
+
+  // Cari href/slug
+  let slug: string | undefined
+  let href: string
+
+  if ('href' in raw) {
+    href = raw.href
+  } else {
+    if ('slug' in raw) {
+      slug = raw.slug
+    } else if ('path' in raw) {
+      slug = (raw as any).path
+    } else if ('_raw' in raw && (raw as any)._raw?.flattenedPath) {
+      slug = (raw as any)._raw.flattenedPath
+    } else if ('_id' in raw) {
+      slug = (raw as any)._id?.toString()?.replace(/^blog\//, '')
+    }
+    href = slug ? `/blog/${slug}` : '/blog'
+  }
+
+  // Ambil gambar pertama
+  let image: string | undefined
+  if ('image' in raw) {
+    image = raw.image
+  } else if (
+    'images' in raw &&
+    Array.isArray(raw.images) &&
+    raw.images.length > 0
+  ) {
+    image = raw.images[0]
+  }
+
+  const tags: string[] | undefined = raw.tags
+
+  return {
+    id: 'id' in raw ? raw.id : (raw._id ?? href),
+    date,
+    readTime,
+    title,
+    description,
+    href,
+    image,
+    imageAlt: 'imageAlt' in raw ? raw.imageAlt : title,
+    tags,
+  }
+}
+
+/** Normalisasi array items */
+function normalizeList(arr: (Blog | Snippet | Post)[] = []): Post[] {
+  return arr.map(normalizeItem)
 }
 
 export default function BlogHubSection({ posts, snippets }: Props) {
   const [mode, setMode] = React.useState<'posts' | 'snippets'>('posts')
-  const items = mode === 'posts' ? posts : snippets
+  const items = React.useMemo(
+    () => normalizeList(mode === 'posts' ? posts : snippets),
+    [mode, posts, snippets],
+  )
 
   const ctaHref = mode === 'posts' ? '/blog' : '/snippets'
   const ctaText =
@@ -68,8 +160,9 @@ export default function BlogHubSection({ posts, snippets }: Props) {
 
       {/* Mode switch line (Posts / Snippets) */}
       <div className="mb-6 flex items-center justify-between">
-        <div className="text-2xl sm:text-[26px] font-semibold flex">
-          <p className="pr-2 text-zinc-900">Latest</p>
+        <div className="flex text-2xl font-semibold sm:text-[26px]">
+          <p className="pr-2 text-zinc-900 dark:text-zinc-50">Latest</p>
+
           <button
             type="button"
             onClick={() => setMode('posts')}
@@ -83,7 +176,9 @@ export default function BlogHubSection({ posts, snippets }: Props) {
           >
             posts
           </button>
+
           <span className="mx-1 text-zinc-300 dark:text-zinc-700">/</span>
+
           <button
             type="button"
             onClick={() => setMode('snippets')}
@@ -112,25 +207,24 @@ export default function BlogHubSection({ posts, snippets }: Props) {
               mode === 'posts' ? 'items-start' : 'items-center sm:items-start',
             )}
           >
-            {/* Thumbnail (optional, shown for posts; for snippets we can hide or use small preview) */}
-            {mode === 'posts' && (
+            {/* Thumbnail: render hanya jika ada gambar */}
+            {mode === 'posts' && a.image ? (
               <div className="relative h-40 w-full flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-32 sm:w-48">
-                {a.image ? (
-                  <Image
-                    src={a.image}
-                    alt={a.imageAlt ?? a.title}
-                    fill
-                    className="object-cover transition duration-300 hover:scale-105"
-                  />
-                ) : null}
+                <Image
+                  src={a.image}
+                  alt={a.imageAlt ?? a.title}
+                  fill
+                  className="object-cover transition duration-300 group-hover:scale-105"
+                  sizes="(min-width: 1024px) 192px, 50vw"
+                />
               </div>
-            )}
+            ) : null}
 
             {/* Content */}
             <div className="flex flex-1 flex-col justify-between">
               <div>
                 <div className="mb-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {a.date}
+                  {formatDate(a.date)}
                   {a.readTime ? <> • {a.readTime}</> : null}
                 </div>
 
@@ -148,14 +242,14 @@ export default function BlogHubSection({ posts, snippets }: Props) {
               <div className="mt-3 flex items-center justify-between">
                 <Link
                   href={a.href}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-700 hover:opacity-80 dark:text-emerald-400"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-yellow-700 hover:opacity-80 dark:text-yellow-400"
                 >
                   Read more →
                 </Link>
 
                 {!!a.tags?.length && (
                   <div className="flex flex-wrap gap-2">
-                    {a.tags?.map((tag) => (
+                    {a.tags.map((tag) => (
                       <span
                         key={tag}
                         className="rounded-md bg-zinc-200 px-2 py-1 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"

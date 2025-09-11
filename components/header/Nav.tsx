@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useId, useRef, useState } from 'react'
+import { KbarSearchTrigger } from '../search/kbar-trigger'
 import { ModeToggle } from '../ui/toggle-theme'
 
 /** -------------------------------------------------
@@ -150,7 +151,7 @@ function DesktopNav({ scrolled }: { scrolled: boolean }) {
                 <div className="h-6 w-px bg-zinc-900/10 dark:bg-white/10" />
 
                 <ModeToggle />
-
+                <KbarSearchTrigger />
                 <Link
                   href="#get-started"
                   className="inline-flex h-9 items-center rounded-full px-4 bg-zinc-950 text-white hover:bg-black dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-black/20 dark:focus-visible:ring-white/30 shadow-[0_1px_0_rgba(0,0,0,0.04)]"
