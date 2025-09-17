@@ -35,7 +35,7 @@ const Logo = ({ className = 'h-6' }: { className?: string }) => (
 
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
-  { href: '/blogs', label: 'Blogs' },
+  { href: '/blog', label: 'Blogs' },
   { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About' },
 ] as const

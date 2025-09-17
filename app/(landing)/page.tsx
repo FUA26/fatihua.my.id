@@ -49,7 +49,7 @@ export default function Home() {
         <Hero />
         <ProjectsSection />
         <BlogHubSection
-          posts={allCoreContent(sortPosts(allBlogs)).slice(0, 3)}
+          posts={sortPosts(allBlogs).slice(0, 3)}
           snippets={allSnippets}
         />
       </Container>
