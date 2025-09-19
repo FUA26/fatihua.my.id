@@ -1,5 +1,6 @@
 import { allBlogs, allSnippets } from '@/.contentlayer/generated'
 import { Container } from '@/components/ui/container'
+import { SpotifyNowPlaying } from '@/components/ui/now-playing'
 import bgDark from '@/public/static/images/background-dark.webp'
 import bgLight from '@/public/static/images/background-light.webp'
 import { allCoreContent } from '@/utils/contentlayer'
@@ -51,6 +52,11 @@ export default function Home() {
         <BlogHubSection
           posts={sortPosts(allBlogs).slice(0, 3)}
           snippets={allSnippets}
+        />
+        <SpotifyNowPlaying
+          className="w-full justify-center truncate [--artist-color:var(--color-gray-500)] md:max-w-[50%] md:justify-start"
+          songEffect="underline"
+          showCover
         />
       </Container>
     </>

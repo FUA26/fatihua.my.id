@@ -93,7 +93,7 @@ export function PostLayout({ content, next, prev, children }: LayoutProps) {
             prev={prev}
             prevLabel="Previous post"
           />
-          <Comments configs={{ reactions: '0' }} />
+          {/* <Comments configs={{ reactions: '0' }} /> */}
         </div>
       </article>
     </Container>

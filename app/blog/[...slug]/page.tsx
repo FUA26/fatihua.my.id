@@ -115,7 +115,7 @@ export default async function Page(props: {
         // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Container className="relative text-neutral-500 pt-20 mb-20">
+      <Container className="relative text-neutral-500 pt-20 mb-10">
         <Layout
           content={mainContent}
           authorDetails={authorDetails}

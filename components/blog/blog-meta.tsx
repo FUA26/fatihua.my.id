@@ -1,4 +1,4 @@
-// import type { StatsType } from '@/db/schema'
+import type { StatsType } from '@/db/schema'
 import { formatDate, getTimeAgo } from '@/utils/misc'
 import type readingTime from 'reading-time'
 import { ViewsCounter } from './views-counter'
@@ -37,7 +37,7 @@ export function BlogMeta({
         <span className="text-gray-300 dark:text-gray-700">/</span>
         <span>{Math.ceil(readingTime.minutes)} mins read</span>
         <span className="text-gray-300 dark:text-gray-700">/</span>
-        <ViewsCounter type={type} slug={slug} />
+        <ViewsCounter type={type as StatsType} slug={slug} />
       </dd>
     </dl>
   )

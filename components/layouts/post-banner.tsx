@@ -74,7 +74,7 @@ export function PostBanner({ content, children }: LayoutProps) {
             </div>
             {/* <SocialShare postUrl={postUrl} title={title} /> */}
           </div>
-          <Comments />
+          {/* <Comments /> */}
         </div>
       </article>
     </Container>

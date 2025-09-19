@@ -60,7 +60,7 @@ export function PostSimple({ content, children }: PostSimpleProps) {
             </div>
             <SocialShare postUrl={postUrl} filePath={filePath} title={title} />
           </div> */}
-          <Comments />
+          {/* <Comments /> */}
         </div>
       </article>
     </Container>
