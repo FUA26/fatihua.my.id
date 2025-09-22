@@ -53,11 +53,6 @@ export default function Home() {
           posts={sortPosts(allBlogs).slice(0, 3)}
           snippets={allSnippets}
         />
-        <SpotifyNowPlaying
-          className="w-full justify-center truncate [--artist-color:var(--color-gray-500)] md:max-w-[50%] md:justify-start"
-          songEffect="underline"
-          showCover
-        />
       </Container>
     </>
   )

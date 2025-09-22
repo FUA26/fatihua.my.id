@@ -9,7 +9,7 @@ export const SITE_METADATA = {
   stickyNav: true,
   theme: 'light', // system, dark or light
   siteUrl: 'https://www.fatihua.my.id',
-  siteRepo: 'https://github.com/FUA26/fatihua',
+  siteRepo: 'https://github.com/FUA26/fatihua.my.id',
   siteLogo: `${process.env.BASE_PATH || ''}/static/images/logo.jpg`,
   socialBanner: `${process.env.BASE_PATH || ''}/static/images/twitter-card.jpeg`,
   email: 'fatihua@gmail.com',
