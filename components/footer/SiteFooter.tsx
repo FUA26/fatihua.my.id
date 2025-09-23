@@ -13,11 +13,11 @@ type NavGroup = {
 }
 
 type Props = {
-  authorCn?: string // e.g. "王安琪"
-  authorName?: string // e.g. "Jesica"
-  tagline?: string // short bio
-  year?: number // default: current year
-  lastUpdated?: string // e.g. "July 18, 2025 at 5:20 PM UTC+7"
+  authorCn?: string
+  authorName?: string
+  tagline?: string
+  year?: number
+  lastUpdated?: string
 }
 
 const groups: NavGroup[] = [

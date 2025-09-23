@@ -13,16 +13,10 @@ export function LastCommit() {
 
   if (!repo?.lastCommit) return null
 
-  // ambil authorName dari owner repo
   let authorName = repo.owner.login
 
-  // Opsi 1: Tahun sekarang
   let year = new Date().getFullYear()
 
-  // Opsi 2: Tahun dari commit terakhir
-  // let year = new Date(repo.lastCommit.committedDate).getFullYear()
-
-  // Format last updated (contoh: 19 Sep 2025)
   let lastUpdated = new Date(repo.lastCommit.committedDate).toLocaleDateString(
     'en-US',
     { year: 'numeric', month: 'short', day: 'numeric' },
