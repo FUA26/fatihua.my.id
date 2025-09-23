@@ -16,6 +16,6 @@ export async function GET(request: NextRequest) {
     return Response.json(null)
   }
   let data = await fetchRepoData({ repo, includeLastCommit: true })
-  console.log(data)
+  // console.log(data)
   return Response.json(data)
 }

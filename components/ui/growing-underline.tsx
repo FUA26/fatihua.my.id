@@ -20,8 +20,8 @@ export function GrowingUnderline({
       className={clsx([
         'bg-linear-to-r bg-bottom-left bg-no-repeat',
         'transition-[background-size] duration-(--duration,300ms)',
-        'from-green-200 to-green-100',
-        'dark:from-emerald-800 dark:to-emerald-900',
+        'from-yellow-200 to-yellow-100',
+        'dark:from-yellow-800 dark:to-yellow-900',
         active
           ? 'bg-size-[100%_50%] hover:bg-size-[100%_100%]'
           : 'bg-size-[0px_50%] hover:bg-size-[100%_50%]',

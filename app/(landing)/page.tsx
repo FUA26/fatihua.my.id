@@ -1,4 +1,4 @@
-import { allBlogs, allSnippets } from '@/.contentlayer/generated'
+import { allBlogs, allProjects, allSnippets } from '@/.contentlayer/generated'
 import { Container } from '@/components/ui/container'
 import { SpotifyNowPlaying } from '@/components/ui/now-playing'
 import bgDark from '@/public/static/images/background-dark.webp'
@@ -12,7 +12,7 @@ import ProjectsSection from './_section/ProjectSection'
 import Hero from './_section/hero'
 
 export default function Home() {
-  // console.log(allBlogs)
+  // console.log(allProjects)
   return (
     <>
       <div
@@ -48,7 +48,7 @@ export default function Home() {
 
       <Container className="relative text-neutral-500 pt-20 mb-20">
         <Hero />
-        <ProjectsSection />
+        <ProjectsSection projects={allProjects} />
         <BlogHubSection
           posts={sortPosts(allBlogs).slice(0, 3)}
           snippets={allSnippets}

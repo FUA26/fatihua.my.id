@@ -1,143 +1,34 @@
 ---
-title: 'Sepasang Janji'
-date: '2023-09-04'
-lastmod: '2024-11-11'
-tags: ['next.js', 'nextjs', 'new']
+heading: "Personal Project"
+title: Sepasang Janji
+date: '2016-03-08'
+role: "Founder & Fullstack Developer"
+tags: ['markdown', 'code', 'features']
+draft: false
 images: ['/static/images/banners/bannersepasang.webp']
-authors: ['default']
-summary: A special platform that immortalizes the joyful moments of our wedding in the form of an interactive digital wedding invitation site
+summary: A special platform that immortalizes the joyful moments of our wedding in the form of an interactive digital wedding invitation site.
 ---
 
-## Introduction
+## Summary
 
-Dalam memulai sebuah project hal pertama yang saya lakukan setelah instalasi adalah untuk setup docker. Bagi yang belum mengetahui docker adalah sebuah platfrom untuk mengembangkan, deliver dan menjalankan sebuah aplikasi. Docker dipilih karena mempunyai beberapa keunggulan antara lain yang berkaitan dengan development stage adalah docker wrap sebuah aplikasi hanya code saja namun sampai dengan OS dan segala dependencinya. Hal ini bertujuan agar konsistensi dari infrastucture tiap stage development seperti local, staging, testing dan production dapat berkesinambungan dan mudah untuk di manage.
+Sepasang Janji is a startup that I founded in 2019. Specifically, in August 2019, it was launched to the public in December 2019. I put all my abilities into this project, ranging from managing the product, marketing, customer service, to coding. Overall, this project is technically the result of my hard work, of course, with various inputs from partners and clients. In March 2023, I had to put this project on hold due to the high workload of my main job.
 
-![render-result](/static/images/project/BannerSepasang.webp)
+### Project Goals
 
-## Prerequisites
+The main goal of this project is to create a blueprint for several projects that will be interconnected in the future. At the beginning, I aimed to solve the problem of how to make wedding invitations more modern and easy. As time went by, in early 2020, the Covid-19 pandemic emerged, and this project was able to run and became popular. Based on input from several clients, the scope was expanded to include gifts, QR codes, and other features.
 
-Sebelum kita mulai ke tiap langkah yang akan dikerjakan, berikut adalah beberapa kebutuhan yang harus disiapkan:
+### Problems
 
-- Node.js (rekomendasi menggunakan versi terbaru)
-- Docker dan docker-compose
+The first problem that arose was time. While this project was running, I had to share my time with my main job. This caused me to only be able to serve a few of the interested parties. This had an impact on slow development.
 
-## Install Next
+The first problem combined with the Covid-19 pandemic caused more competitors to emerge. At the beginning of the development phase, market research was conducted.
 
-Step pertama adalah kita coba untuk membuat project nextjs yang nantinya akan kita dockerize. dengan langkah berikut ini:
+The first problem, combined with the pandemic, caused the web invitation market to be very good. Where if the market is good, it will certainly attract other service providers, this makes the number of interested parties decrease because they move to competitors. Next, it can be guessed that an extraordinary price war occurred.
 
-Buka terminal dan ketik commend berikut:
+### Tech Stack
 
-```jsx
-npx create-next-app@latest
-```
-
-Setelah commend dijalankan akan menampilkan beberapa option berikut ini:
-
-```jsx
-What is your project named? dockerize-nextjs
-Would you like to add TypeScript with this project? Y
-Would you like to use ESLint with this project? Y
-Would you like to use Tailwind CSS with this project? Y
-Would you like to use the `src/ directory` with this project? Y
-What import alias would you like configured? `@/*`Enter
-```
-
-Tunggu sampai proses selesai, setelah itu pindah ke directory **dockerize-nextjs** dengan commend **cd**. Setelah itu jalankan project tersebut dan pastikan berjalan tanpa error dengan commend **run dev** untuk development mode.
-
-```jsx
-cd dockerize-nextjs
-npm run dev
-```
-
-Setelah nextjs berjalan dengan normal tanpa ada issue maka kita akan mulai proses dockerize project tersebut.
-
-## Create Dockerfile
-
-Dockerfile merupakan sebuah file teks yang berisi serangkaian instruksi yang digunakan untuk membangun sebuah image Docker. Image Docker merupakan template yang berisi sistem operasi, lingkungan runtime, aplikasi, dan semua dependensinya yang diperlukan untuk menjalankan project. Docker image ini yang nantinya akan dirun pada sebuah container. Berikut adalah contoh sebuah Dockerfile untuk local development:
-
-```yaml
-FROM node:18-alpine
-
-WORKDIR /app
-
-COPY package*.json ./ RUN npm install
-
-COPY . .
-
-CMD ["npm", "run", "dev"]
-```
-
-Pada docker file diatas ada beberapa hal yg perlu diperhatikan
-
-- **`FROM node:18-alpine`**: Ini adalah langkah pertama dalam Dockerfile dan menentukan base image yang akan digunakan. Pilihlah yang sesuai dengan kebutuhan.
-- **`WORKDIR /app`**: code ini mengatur direktori kerja (working directory) dalam container ke **`/app`**. Semua perintah selanjutnya akan dijalankan dalam direktori **`/app`.**
-- **`COPY package*.json ./`**: Ini menyalin file **`package.json`** dan **`package-lock.json`** dari direktori lokal (di mana Dockerfile berada) ke dalam direktori kerja dalam container.
-- **`RUN npm install`**: Ini menjalankan perintah **`npm install`** dalam container untuk menginstal semua dependensi yang didefinisikan dalam file **`package.json`.**
-- **`COPY . .`**: Perintah ini menyalin seluruh konten dari direktori lokal ke dalam direktori kerja dalam container. Ini termasuk semua file dan direktori proyek.
-- **`CMD ["npm", "run", "dev"]`**: Ini adalah perintah default yang akan dijalankan ketika container jalankan. Maka ketika container dijalankan akan run commend **`npm run dev`.**
-
-## Create Docker Compose
-
-Docker compose merupakan file untuk mendefinisikan dan menjalankan multi-container Docker applications. Walau pada project ini kita hanya menjalankan satu container, docker-compose ini nantinya pada berguna ketika ada penambahan service seperti database dan service lainnya.
-
-```yaml
-version: '3'
-
-services:
-  dockerize-nextjs:
-    build: .
-    container_name: dockerize-nextjs
-    restart: always
-    ports:
-      - 3000:3000
-    volumes:
-      - .:/app
-      - /app/node_modules
-    env_file:
-      - .env
-```
-
-Berikut merupakan penjelasan dari docker compose diatas:
-
-- **`version: '3'`**: Ini menunjukkan versi format konfigurasi Docker Compose yang digunakan.
-- **`services:`**: Bagian ini mendefinisikan layanan yang akan dijalankan dalam komposisi Docker.
-- **`dockerize-nextjs:`**: Nama dari service
-  - **`build: .`**: Ini menunjukkan bahwa Docker Compose harus membangun image menggunakan Dockerfile yang ada di direktori saat ini (**`.`**).
-  - **`container_name: dockerize-nextjs`**: Ini memberikan nama yang akan diberikan kepada container yang dihasilkan.
-  - **`restart: always`**: Ini menunjukkan bahwa container harus selalu di-restart jika berhenti.
-  - **`ports:`**: Ini menghubungkan port dari host ke port dalam container.
-    - **`3000:3000`**: Menghubungkan port 3000 pada host ke port 3000 dalam container.
-  - **`volumes:`**: Ini mengaitkan volume antara file/direktori di host dan dalam container.
-    - **`.-/app`**: Menghubungkan direktori saat ini pada host ke direktori **`/app`** dalam container. Ini berfungsi agar hot reload next bisa berjalan
-    - **`/app/node_modules`**: Menghubungkan volume untuk folder **`node_modules`** dalam container.
-  - **`env_file:`**: Ini menunjukkan file yang berisi variabel lingkungan yang akan diatur dalam container.
-    - **`.env`**: Menggunakan file **`.env`** dalam direktori saat ini.
-
-## Setup Docker Ignore
-
-Dockerignore merupakan definisi dari list file dan direktori yang harus diabaikan saat membangun image Docker. Hal ini penting agar pada image yang kita buat benar benar berisi file dan folder yang dibutuhkan sehingga ukuran image akan lebih kecil. Berikut ini contoh dari dockerignore
-
-```
-node_modules
-npm-debug.log
-.git
-.next
-.eslint*
-.prettier
-Dockerfile
-.dockerignore
-docker-compose*
-```
-
-## Commend Run Docker
-
-Untuk menjalankan nextjs pada docker ada 2 metode yang bisa dilakukan. Yang pertama adalah build dan start berbeda commend, dengan hal ini makan step pertama adalah build image. Untuk run image tersebut membutuhkan commend berbeda. Selain itu ada metode kedua dimana satu commend bisa build sekaligus menjalankan image tersebut.
-
-```yaml
-# Commend untuk build dan run terpisah
-docker-compose -f docker-compose.dev.yml build
-docker-compose -f docker-compose.dev.yml up -d
-
-# Commend untuk build sekaligus run
-docker-compose -f docker-compose.dev.yml up -d
-```
+- Next.js  
+- React  
+- Node.js  
+- Firebase  
+- Vercel  

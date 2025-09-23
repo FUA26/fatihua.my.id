@@ -143,12 +143,56 @@ export let Blog = defineDocumentType(() => ({
 
 export let Snippet = defineDocumentType(() => ({
   name: 'Snippet',
-  filePathPattern: 'project/**/*.mdx',
+  filePathPattern: 'snippet/**/*.mdx',
   contentType: 'mdx',
   fields: {
     heading: { type: 'string', required: true },
     title: { type: 'string', required: true },
     icon: { type: 'string', required: true },
+    date: { type: 'date', required: true },
+    tags: { type: 'list', of: { type: 'string' }, default: [] },
+    lastmod: { type: 'date' },
+    draft: { type: 'boolean' },
+    summary: { type: 'string' },
+    images: { type: 'json' },
+    authors: { type: 'list', of: { type: 'string' } },
+    layout: { type: 'string' },
+    bibliography: { type: 'string' },
+    canonicalUrl: { type: 'string' },
+  },
+  computedFields: {
+    ...computedFields,
+    structuredData: {
+      type: 'json',
+      resolve: (doc) => ({
+        '@context': 'https://schema.org',
+        '@type': 'CodeSnippet',
+        headline: doc.title,
+        datePublished: doc.date,
+        dateModified: doc.lastmod || doc.date,
+        description: doc.summary,
+        image: doc.images ? doc.images[0] : SITE_METADATA.socialBanner,
+        url: `${SITE_METADATA.siteUrl}/${doc._raw.flattenedPath}`,
+      }),
+    },
+  },
+}))
+
+export let Project = defineDocumentType(() => ({
+  name: 'Project',
+  filePathPattern: 'project/**/*.mdx',
+  contentType: 'mdx',
+  fields: {
+    heading: { type: 'string', required: true },
+    title: { type: 'string', required: true },
+    role: { type: 'string', required: true },
+    client: { type: 'string' },
+    techStack: { type: 'list', of: { type: 'string' } },
+    duration: { type: 'string' },
+    status: { type: 'string', default: 'Completed' },
+    deliverables: { type: 'list', of: { type: 'string' } },
+    links: { type: 'json' },
+    confidential: { type: 'boolean', default: false },
     date: { type: 'date', required: true },
     tags: { type: 'list', of: { type: 'string' }, default: [] },
     lastmod: { type: 'date' },
@@ -198,7 +242,7 @@ export let Author = defineDocumentType(() => ({
 
 export default makeSource({
   contentDirPath: 'data',
-  documentTypes: [Blog, Snippet, Author],
+  documentTypes: [Blog, Snippet, Author, Project],
   mdx: {
     cwd: process.cwd(),
     remarkPlugins: [

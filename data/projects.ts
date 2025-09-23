@@ -51,7 +51,7 @@ export const PROJECTS: Project[] = [
   },
   {
     type: 'work',
-    title: 'FoxKit AIO Upsell Cross‑sell',
+    title: 'Vascomm Career',
     description:
       'The upsells and boost conversion tools that is built to support Minimog theme.',
     imgSrc: '/static/images/sale-price-tag-96.png',

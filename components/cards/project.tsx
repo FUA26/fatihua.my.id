@@ -14,6 +14,8 @@ import clsx from 'clsx'
 import { Github } from 'lucide-react'
 import { Fragment } from 'react'
 import useSWR from 'swr'
+import { TriPolygonBackground } from '../ui/TriPolygonBackground'
+import { ShearedMeshBackground } from '../ui/sheared-mesh-background'
 
 export function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
   let { title, description, imgSrc, url, repo, builtWith, links } = project
@@ -29,7 +31,10 @@ export function ProjectCard({ project }: { project: (typeof PROJECTS)[0] }) {
       offset={28}
       className="flex flex-col rounded-[40px] p-6 [box-shadow:0_8px_32px_rgba(194,194,218,.3)] md:p-8 dark:bg-white/5 dark:shadow-none"
     >
-      <TiltedGridBackground className="inset-0 z-[-1] rounded-[40px]" />
+      <TriPolygonBackground
+        className="text-black/70 dark:text-white/70"
+        jitter={0.15}
+      />
       <div className="mb-6 flex items-center gap-4">
         <Image
           src={imgSrc}

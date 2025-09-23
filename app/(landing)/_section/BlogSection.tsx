@@ -123,7 +123,7 @@ export default function BlogHubSection({ posts, snippets }: Props) {
   const ctaHref = mode === 'posts' ? '/blog' : '/snippets'
   const ctaText =
     mode === 'posts' ? 'View all articles →' : 'View all snippets →'
-
+  // console.log(items)
   return (
     <section
       aria-labelledby="bloghub-heading"

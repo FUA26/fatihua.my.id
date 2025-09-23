@@ -16,7 +16,7 @@ export default function About() {
 
           <SkillSection />
         </div>
-        <div className="p-6">
+        <div className="p-6 mb-6">
           <h2 className="py-4 text-4xl font-bold text-foreground">
             Where I&apos;ve Worked.
           </h2>
