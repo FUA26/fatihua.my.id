@@ -39,7 +39,7 @@ const worksHistory: WorkItem[] = [
       },
     ],
     startDate: '08-01-2023',
-    src: '/static/images/MV_logo.webp',
+    src: '/static/images/mv_logo.webp',
     url: 'https://www.machinevision.global/',
     invertLogoOnDark: false,
   },

@@ -104,7 +104,7 @@ export default function ProjectsSection({
             const metaLeft = p.duration || formatDate(p.date) // tampilkan duration jika ada
             const metaRight = p.status // "On Hold", "Completed", dsb.
             // console.log(p)
-            console.log('Images URL : ', image, p.images)
+            // console.log('Images URL : ', image, p.images)
             return (
               <article
                 key={p._id ?? p.slug ?? href}

@@ -23,7 +23,7 @@ import { ModeToggle } from '../ui/toggle-theme'
 const NAV_ITEMS = [
   { href: '/', label: 'Home' },
   { href: '/blog', label: 'Blogs' },
-  { href: '/projects', label: 'Projects' },
+  { href: '/project', label: 'Projects' },
   { href: '/about', label: 'About' },
 ] as const
 
