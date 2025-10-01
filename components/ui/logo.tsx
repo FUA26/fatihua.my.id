@@ -1,14 +1,18 @@
 import { Image } from '@/components/ui/image'
 import { Link } from '@/components/ui/link'
 import { SITE_METADATA } from '@/data/site-metadata'
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 
-export function Logo({ className }: { className?: string }) {
+type LogoProps = {
+  className?: string
+}
+
+export function Logo({ className }: LogoProps) {
   return (
     <Link
       href="/"
       aria-label={SITE_METADATA.headerTitle}
-      className={clsx(['flex items-center gap-2', className])}
+      className={clsx('flex items-center gap-2', className)}
     >
       <Image
         src="/static/images/FUA_logo.svg"
@@ -18,7 +22,7 @@ export function Logo({ className }: { className?: string }) {
         className="h-8 w-8"
         loading="eager"
       />
-      {/* <span className="font-semibold">{SITE_METADATA.headerTitle}</span> */}
+      <span className="sr-only">{SITE_METADATA.headerTitle}</span>
     </Link>
   )
 }

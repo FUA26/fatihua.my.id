@@ -279,8 +279,8 @@ export default makeSource({
     ],
   },
   onSuccess: async (importData) => {
-    let { allBlogs, allSnippets } = await importData()
-    let allPosts = [...allBlogs, ...allSnippets]
+    let { allBlogs, allSnippets, allProjects } = await importData()
+    let allPosts = [...allBlogs, ...allSnippets, ...allProjects]
     createTagCount(allPosts)
     createSearchIndex(allPosts)
     console.log('✨ Content source generated successfully!')

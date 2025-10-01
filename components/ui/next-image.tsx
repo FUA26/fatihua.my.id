@@ -2,32 +2,26 @@
 
 import NextImage, { type ImageProps as NextImageProps } from 'next/image'
 
-import clsx from 'clsx'
-import { useState } from 'react'
+export type AppImageProps = Omit<NextImageProps, 'priority'> & {
+  priority?: boolean
+}
 
-const Image = (props: NextImageProps) => {
-  const { alt, src, className, priority, ...rest } = props
-  const [isLoading, setLoading] = useState(true)
+function isSvg(src: NextImageProps['src']) {
+  if (typeof src !== 'string') return false
+  const s = src.split('?')[0].trim().toLowerCase()
+  return s.endsWith('.svg') || s.startsWith('data:image/svg+xml')
+}
 
+export default function Image({ src, quality, ...rest }: AppImageProps) {
+  // SVG: no optimization + jangan kirim quality
+  if (isSvg(src)) return <NextImage src={src} unoptimized {...rest} />
+
+  // Raster: hanya kirim quality jika ADA (jangan default 100)
   return (
-    <div className={clsx('overflow-hidden', isLoading ? 'animate-pulse' : '')}>
-      <NextImage
-        className={clsx(
-          'duration-700 ease-in-out',
-          isLoading
-            ? 'scale-[1.02] blur-xl grayscale'
-            : 'scale-100 blur-0 grayscale-0',
-          className,
-        )}
-        src={src}
-        alt={alt}
-        loading={priority ? 'eager' : 'lazy'}
-        quality={100}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        onLoad={() => setLoading(false)}
-        {...rest}
-      />
-    </div>
+    <NextImage
+      src={src}
+      {...(quality !== undefined ? { quality } : {})}
+      {...rest}
+    />
   )
 }
-export default Image

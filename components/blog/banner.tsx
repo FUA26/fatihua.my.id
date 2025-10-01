@@ -1,4 +1,4 @@
-import { GritBackground } from '@/components/ui/grit-background'
+// import { GritBackground } from '@/components/ui/grit-background'
 import { GrowingUnderline } from '@/components/ui/growing-underline'
 import { Image, Zoom } from '@/components/ui/image'
 import { Link } from '@/components/ui/link'
@@ -55,7 +55,7 @@ export function Banner({ banner, className }: BannerProps) {
         />
       </Zoom>
 
-      <GritBackground className="inset-0 rounded-lg opacity-75" />
+      {/* <GritBackground className="inset-0 rounded-lg opacity-75" /> */}
     </div>
   )
 }

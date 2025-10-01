@@ -1,6 +1,6 @@
 'use client'
 
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 import type { ImageProps as NextImageProps } from 'next/image'
 import NextImage from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -31,30 +31,48 @@ export interface ImageProps extends Omit<NextImageProps, 'src' | 'priority'> {
   src: string
 }
 
+function isSvgSrc(src: string) {
+  const s = src.trim().toLowerCase()
+  return s.endsWith('.svg') || s.startsWith('data:image/svg+xml')
+}
+
 export function Image(props: ImageProps) {
-  const { alt, src, loading = 'lazy', style, className, ...rest } = props
+  const {
+    alt,
+    src,
+    loading = 'lazy',
+    style,
+    className,
+    quality,
+    ...rest
+  } = props
   const [loaded, onLoad] = useImageLoadedState(src)
+  const isSvg = isSvgSrc(src)
+
+  // Kelas efek loading hanya untuk raster (bukan SVG)
+  const containerClass = clsx(
+    'image-container relative overflow-hidden',
+    !loaded && !isSvg && 'animate-pulse [animation-duration:4s]',
+    className,
+  )
+
+  const imgClass = clsx(
+    'transition-all duration-500 [transition-timing-function:cubic-bezier(.4,0,.2,1)]',
+    'h-full max-h-full w-full object-center',
+    !isSvg && (loaded ? 'blur-0' : 'blur-xl'),
+  )
 
   return (
-    <div
-      className={clsx(
-        'image-container relative overflow-hidden',
-        !loaded && 'animate-pulse [animation-duration:4s]',
-        className,
-      )}
-    >
+    <div className={containerClass}>
       <NextImage
-        className={clsx(
-          'transition-all duration-500 [transition-timing-function:cubic-bezier(.4,0,.2,1)]',
-          'h-full max-h-full w-full object-center',
-          loaded ? 'blur-0' : 'blur-xl',
-        )}
+        className={imgClass}
         src={src}
         alt={alt}
         style={{ objectFit: 'cover', ...style }}
         loading={loading}
         priority={loading === 'eager'}
-        quality={100}
+        // SVG: unoptimized, jangan kirim quality
+        {...(isSvg ? { unoptimized: true } : { quality })}
         onLoad={onLoad}
         {...rest}
       />
@@ -71,12 +89,12 @@ export function Zoom(props: ZoomProps) {
   return (
     <ReactMediumImageZoom
       zoomMargin={20}
-      classDialog={clsx([
+      classDialog={clsx(
         '[&_[data-rmiz-modal-img]]:rounded-lg',
         '[&_[data-rmiz-btn-unzoom]]:hidden',
         '[&_[data-rmiz-modal-overlay="visible"]]:bg-black/80',
         classDialog,
-      ])}
+      )}
       {...rest}
     >
       {children}

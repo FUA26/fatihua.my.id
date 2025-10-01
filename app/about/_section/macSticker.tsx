@@ -9,9 +9,10 @@ const MacSticker = () => {
         className="m-auto rounded-2xl"
         src="/static/images/macbook.webp"
         alt="Profile Image"
-        priority={true}
+        priority
         height={454}
         width={659}
+        // jangan set quality
       />
       {fav.map((items) => (
         <Sticker

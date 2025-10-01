@@ -1,9 +1,19 @@
 {
-  "markdown": 1,
-  "code": 1,
-  "features": 1,
-  "next-js": 1,
+  "nextjs": 2,
+  "typescript": 3,
+  "clean-architecture": 1,
+  "web-development": 1,
+  "boilerplate": 2,
   "eslint": 1,
   "prettier": 1,
-  "setup": 1
+  "react": 1,
+  "mextjs": 1,
+  "workflow": 1,
+  "husky": 1,
+  "commitlint": 1,
+  "color": 1,
+  "validator": 1,
+  "markdown": 2,
+  "code": 2,
+  "features": 2
 }

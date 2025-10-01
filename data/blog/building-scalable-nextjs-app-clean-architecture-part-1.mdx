@@ -1,0 +1,240 @@
+---
+title: 'Building a Scalable Next.js App – Part 1: Kickstarting with Clean Architecture'
+date: '2025-06-24'
+tags: ['Next.js', 'TypeScript', 'Clean Architecture', 'Web Development', 'Boilerplate']
+draft: false
+images: ['/static/images/banners/yellow-and-black-heavy-equipment-on-brown-field-during-daytime__sunburned_surveyor__DodJfxuH46I.jpg']
+authors: [default']
+summary: A comprehensive guide to initializing a Next.js application with App Router using clean architecture principles. Learn how to structure your project for maintainability and scalability from day one, based on 7 years of web development experience.
+---
+### 🧩 **Introduction**
+
+After 7 years of building and scaling web apps, I’ve come to appreciate the value of starting strong with a clean, maintainable project structure. In this post, I’ll walk you through how I initialize a new **Next.js app** using the latest `App Router`, why I avoid the `/src` folder, and how I organize my folders to make things clean and enterprise-ready from day one.
+
+### 📋 **Prerequisites**
+
+Before we start, make sure you have:
+
+- **Node.js** version 18.x or higher
+- **npm** installed globally
+- Basic understanding of **React** and **TypeScript**
+- Familiarity with terminal and CLI tools
+
+### Initialize the Project
+
+I prefer using the `npm create` command for simplicity:
+
+```bash
+npm create next-app@latest
+```
+
+You'll be prompted with a few questions. Here’s how I typically answer and what they mean:
+
+| CLI Question | My Answer | Explanation |
+| --- | --- | --- |
+| What is your project named? | `next-enterprise-boilerplate` | Choose any name |
+| Would you like to use TypeScript? | `Yes` | Strongly recommended for enterprise projects |
+| Would you like to use ESLint? | `Yes` | Helps catch bugs and enforce code standards |
+| Would you like to use Tailwind CSS? | `Yes` | Utility-first CSS makes styling more consistent |
+| Would you like to use `src/` directory? | `No` | I prefer keeping the `app/` at the root for simplicity |
+| Would you like to use App Router? | `Yes` | The future of routing in Next.js |
+| Customize the default import alias? | `No` or set to `@/*` | Optional, but I usually update it later |
+
+After running the CLI and completing the setup, the following folder structure is generated:
+
+```bash
+banda-next-boilerplate/
+├── .git/
+├── node_modules/
+├── app/
+│   ├── page.tsx
+│   ├── layout.tsx
+│   ├── favicon.ico
+│   └── globals.css
+├── public/
+│   ├── window.svg
+│   ├── vercel.svg
+│   ├── next.svg
+│   ├── globe.svg
+│   └── file.svg
+├── package-lock.json
+├── package.json
+├── tsconfig.json
+├── next.config.ts
+├── next-env.d.ts
+├── postcss.config.mjs
+├── eslint.config.mjs
+├── README.md
+└── .gitignore
+```
+
+Let me walk you through what each folder and file is for:
+
+---
+
+📂 `.git/`
+
+- This hidden folder is created when you initialize a Git repo (`git init`), which `create-next-app` does automatically unless disabled.
+- It contains your version control history and config.
+
+📂 `node_modules/`
+
+- Contains all the project’s dependencies as specified in `package.json`.
+- This is managed automatically by your package manager (e.g., npm).
+
+---
+
+📂 `app/`
+
+The core of your application when using the **App Router**.
+
+- `page.tsx`:
+    
+    The root route (`/`) of your app. This is the homepage content.
+    
+- `layout.tsx`:
+    
+    Wraps all pages under this route. Think of this like your main layout template (navbar, footer, etc.).
+    
+- `globals.css`:
+    
+    Global styles for your entire app. Tailwind’s base, components, and utilities are usually imported here.
+    
+- `favicon.ico`:
+    
+    The favicon used by your browser tab.
+    
+
+> 🧠 In the App Router model, each folder in app/ represents a route, and special files like page.tsx, layout.tsx, and loading.tsx define behavior for that route.
+> 
+
+---
+
+📂 `public/`
+
+Used for static assets like images, fonts, and other media that don’t go through Webpack.
+
+- All files here can be accessed directly at the root URL (`/vercel.svg`, `/globe.svg`, etc.)
+- Recommended for storing logos, favicons, or document downloads.
+
+---
+
+📄 `package.json`
+
+Defines your project’s metadata, dependencies, and scripts.
+
+- Key sections include:
+    - `"dependencies"`: runtime packages
+    - `"devDependencies"`: tools like ESLint, Tailwind
+    - `"scripts"`: commands like `dev`, `build`, `lint`, etc.
+
+📄 `package-lock.json`
+
+Auto-generated file that locks the versions of installed dependencies. Important for reproducible builds.
+
+---
+
+📄 `tsconfig.json`
+
+TypeScript configuration file. Controls compiler settings and paths.
+
+---
+
+📄 `next.config.ts`
+
+Next.js configuration file (in TypeScript). You can customize things like:
+
+- Image domains
+- Redirects/rewrite rules
+- Experimental features
+
+---
+
+📄 `next-env.d.ts`
+
+Automatically generated to ensure TypeScript understands Next.js-specific types.
+
+- Don’t modify or delete this file manually.
+
+---
+
+📄 `postcss.config.mjs`
+
+Used by Tailwind CSS for processing styles.
+
+- This is where PostCSS plugins like `autoprefixer` are loaded.
+
+---
+
+📄 `eslint.config.mjs`
+
+Your ESLint configuration using the new flat config format.
+
+- Controls linting rules for your project.
+- Ensures consistency and code quality.
+
+---
+
+📄 `README.md`
+
+Basic documentation for your project. You can expand this later with setup instructions, environment variables, and contribution guidelines.
+
+---
+
+📄 `.gitignore`
+
+Lists files and folders that Git should ignore.
+
+Default includes:
+
+- `node_modules/`
+- `.next/`
+- Environment files (`.env*`)
+- OS-specific files like `.DS_Store`
+
+### ✂️ **Optional Cleanup: Moving Icons & Styles**
+
+Before wrapping up, there’s one small tweak I like to make right away for better organization:
+
+- **Move `favicon.ico`** from `app/` to the `public/` folder
+- **Move `globals.css`** from `app/` to a top-level `styles/` folder (e.g., `styles/globals.css`)
+
+```bash
+bash
+CopyEdit
+# Create a styles folder if you don’t have one
+mkdir styles
+
+# Move the CSS file
+mv app/globals.css styles/globals.css
+
+# Then update the import in app/layout.tsx
+
+```
+
+Update your `app/layout.tsx`:
+
+```tsx
+tsx
+CopyEdit
+import '../styles/globals.css'
+
+```
+
+> 🧼 This keeps the app/ folder focused strictly on routing and page logic, while visual assets and styles live in more conventional places (public/ and styles/).
+> 
+
+### 🧠 **Conclusion**
+
+By using `npm create next-app@latest` and customizing the CLI options to your needs, you’ve just laid a solid foundation for your Next.js project — one that’s cleaner, simpler, and better suited for enterprise-grade applications.
+
+Before wrapping up, I also like to make a quick adjustment for clarity and maintainability:
+
+- Move `favicon.ico` into the `public/` folder
+- Move `globals.css` into a top-level `styles/` folder
+
+This keeps the `app/` directory focused strictly on routing and layout logic, while static assets and global styles are stored in more conventional, centralized locations.
+
+We’ve walked through every file and folder generated by default, explaining how each one plays a part in your app's architecture. By skipping the `src/` directory and leveraging the power of the App Router, you get a structure that’s easier to navigate and more scalable for teams from the very beginning.
+
+If you’re following along and want to see how this boilerplate evolves, check out the GitHub repo I’m building as part of this series.

@@ -1,7 +1,7 @@
 'use client'
 
+import { Link } from '@/components/ui/link' // gunakan Link kustom (bukan next/link)
 import Image from 'next/image'
-import Link from 'next/link'
 import { useEffect, useId, useRef, useState } from 'react'
 import { KbarSearchTrigger } from '../search/kbar-trigger'
 import { Logo } from '../ui/logo'
@@ -100,25 +100,18 @@ function DesktopNav({ scrolled }: { scrolled: boolean }) {
         <div className="mx-auto w-full max-w-7xl px-8 lg:px-10">
           {/* Offset aman dari atas (safe area) */}
           <div className="mt-[max(12px,env(safe-area-inset-top))] flex items-center justify-between pt-3 lg:pt-5">
-            <Link
-              href="/"
-              aria-label="Home"
-              className="flex items-center gap-3"
+            {/* JANGAN dibungkus Link lagi — Logo sudah punya Link internal */}
+            <div
+              className={[
+                'h-6 w-[120px] lg:w-[140px] flex items-center',
+                'transition-all motion-safe:duration-200 motion-reduce:transition-none',
+                scrolled
+                  ? 'opacity-0 -translate-y-1 pointer-events-none'
+                  : 'opacity-100 translate-y-0',
+              ].join(' ')}
             >
-              {/* Reserve width agar tidak shift saat logo hide */}
-              <div
-                className={[
-                  'h-6 w-[120px] lg:w-[140px] flex items-center',
-                  'transition-all motion-safe:duration-200 motion-reduce:transition-none',
-                  scrolled
-                    ? 'opacity-0 -translate-y-1 pointer-events-none'
-                    : 'opacity-100 translate-y-0',
-                ].join(' ')}
-              >
-                <Logo className="h-6" />
-              </div>
-              <span className="sr-only">Home</span>
-            </Link>
+              <Logo className="h-6" />
+            </div>
 
             <GlassGroup className={scrolled ? 'shadow-md/20' : ''}>
               <div className="flex h-12 items-center gap-4 px-2">
@@ -178,9 +171,8 @@ function MobileNav() {
     <div className="fixed inset-x-0 top-3 z-50 px-4 md:hidden">
       <GlassGroup>
         <div className="flex h-12 items-center justify-between rounded-full px-4">
-          <Link href="/" aria-label="Home" className="flex items-center gap-2">
-            <Logo className="h-5" />
-          </Link>
+          {/* JANGAN dibungkus Link lagi — Logo sudah punya Link internal */}
+          <Logo className="h-5" />
 
           <button
             type="button"

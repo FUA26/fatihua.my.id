@@ -40,70 +40,77 @@ function formatDate(idate?: string) {
 
 /** Normalisasi 1 item (raw Contentlayer atau Post) menjadi Post */
 function normalizeItem(raw: Blog | Snippet | Post): Post {
-  // Ambil sumber nilai dengan fallback yang masuk akal
-  const title = raw.title ?? 'Untitled'
-  const date = raw.date ?? ''
+  // Sumber dasar
+  const anyRaw = raw as any
+  const title = anyRaw.title ?? 'Untitled'
+  const date = anyRaw.date ?? anyRaw.publishedAt ?? ''
   const description =
-    'description' in raw ? raw.description : (raw.summary ?? '')
+    'description' in anyRaw ? anyRaw.description : (anyRaw.summary ?? '')
 
-  // Handle reading time - different structure for Blog/Snippet vs Post
+  // Reading time (string atau object readingTime.text)
   let readTime: string | undefined
-  if ('readTime' in raw) {
-    readTime = raw.readTime
-  } else if ('readingTime' in raw) {
-    if (
-      typeof raw.readingTime === 'object' &&
-      raw.readingTime &&
-      'text' in raw.readingTime
-    ) {
-      readTime = raw.readingTime.text
-    } else if (typeof raw.readingTime === 'string') {
-      readTime = raw.readingTime
-    }
+  if ('readTime' in anyRaw && anyRaw.readTime) {
+    readTime = anyRaw.readTime
+  } else if ('readingTime' in anyRaw && anyRaw.readingTime) {
+    readTime =
+      typeof anyRaw.readingTime === 'string'
+        ? anyRaw.readingTime
+        : anyRaw.readingTime?.text
   }
 
-  // Cari href/slug
+  // Cari slug/flattenedPath yang paling andal
   let slug: string | undefined
-  let href: string
+  if (anyRaw.slug) {
+    slug = anyRaw.slug
+  } else if (anyRaw.path) {
+    slug = anyRaw.path
+  } else if (anyRaw._raw?.flattenedPath) {
+    // contoh: "blog/my-post" atau "snippets/my-snippet"
+    slug = anyRaw._raw.flattenedPath
+  } else if (anyRaw._id) {
+    slug = anyRaw._id
+      .toString()
+      .replace(/^blog\//, '')
+      .replace(/^snippets\//, '')
+  }
 
-  if ('href' in raw) {
-    href = raw.href
-  } else {
-    if ('slug' in raw) {
-      slug = raw.slug
-    } else if ('path' in raw) {
-      slug = (raw as any).path
-    } else if ('_raw' in raw && (raw as any)._raw?.flattenedPath) {
-      slug = (raw as any)._raw.flattenedPath
-    } else if ('_id' in raw) {
-      slug = (raw as any)._id?.toString()?.replace(/^blog\//, '')
+  // Tentukan href yang benar sesuai prefix/tipe
+  let href = '/blog'
+  if (slug) {
+    if (slug.startsWith('snippets/')) {
+      href = `/${slug}` // → /snippets/...
+    } else if (slug.startsWith('blog/')) {
+      href = `/${slug}` // → /blog/...
+    } else {
+      // Jika tidak ada prefix, tentukan berdasarkan tipe
+      const isSnippet =
+        anyRaw.type === 'Snippet' ||
+        anyRaw._id?.toString()?.startsWith('snippets/')
+      href = isSnippet ? `/snippets/${slug}` : `/blog/${slug}`
     }
-    href = slug ? `/blog/${slug}` : '/blog'
+  } else if ('href' in anyRaw && anyRaw.href) {
+    href = anyRaw.href
   }
 
-  // Ambil gambar pertama
+  // Gambar (ambil image pertama yang tersedia)
   let image: string | undefined
-  if ('image' in raw) {
-    image = raw.image
-  } else if (
-    'images' in raw &&
-    Array.isArray(raw.images) &&
-    raw.images.length > 0
-  ) {
-    image = raw.images[0]
+  if ('image' in anyRaw && anyRaw.image) {
+    image = anyRaw.image
+  } else if (Array.isArray(anyRaw.images) && anyRaw.images.length > 0) {
+    image = anyRaw.images[0]
   }
 
-  const tags: string[] | undefined = raw.tags
+  const tags: string[] | undefined = anyRaw.tags
 
   return {
-    id: 'id' in raw ? raw.id : (raw._id ?? href),
+    id: 'id' in anyRaw && anyRaw.id ? anyRaw.id : (anyRaw._id ?? href),
     date,
     readTime,
     title,
     description,
     href,
     image,
-    imageAlt: 'imageAlt' in raw ? raw.imageAlt : title,
+    imageAlt: 'imageAlt' in anyRaw ? anyRaw.imageAlt : title,
     tags,
   }
 }
@@ -115,15 +122,20 @@ function normalizeList(arr: (Blog | Snippet | Post)[] = []): Post[] {
 
 export default function BlogHubSection({ posts, snippets }: Props) {
   const [mode, setMode] = React.useState<'posts' | 'snippets'>('posts')
-  const items = React.useMemo(
-    () => normalizeList(mode === 'posts' ? posts : snippets),
-    [mode, posts, snippets],
-  )
+
+  const normPosts = React.useMemo(() => normalizeList(posts), [posts])
+  const normSnippets = React.useMemo(() => normalizeList(snippets), [snippets])
+  const items = mode === 'posts' ? normPosts : normSnippets
+
+  // Debug jika perlu:
+  // console.log('SNIPPETS:', snippets)
+  // console.log('POSTS:', posts)
+  // console.log('ITEMS:', items)
 
   const ctaHref = mode === 'posts' ? '/blog' : '/snippets'
   const ctaText =
     mode === 'posts' ? 'View all articles →' : 'View all snippets →'
-  // console.log(items)
+
   return (
     <section
       aria-labelledby="bloghub-heading"
@@ -186,7 +198,7 @@ export default function BlogHubSection({ posts, snippets }: Props) {
               'ms-1 underline-offset-4 focus:outline-none',
               mode === 'snippets'
                 ? 'text-zinc-900 underline dark:text-zinc-50'
-                : 'text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300',
+                : 'text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800',
             )}
             aria-pressed={mode === 'snippets'}
           >
@@ -197,73 +209,83 @@ export default function BlogHubSection({ posts, snippets }: Props) {
 
       <hr className="border-zinc-200 dark:border-zinc-800" />
 
-      {/* List */}
-      <div className="mt-8 space-y-10">
-        {items.map((a) => (
-          <article
-            key={a.id}
-            className={clsx(
-              'flex flex-col gap-6 sm:flex-row',
-              mode === 'posts' ? 'items-start' : 'items-center sm:items-start',
-            )}
-          >
-            {/* Thumbnail: render hanya jika ada gambar */}
-            {mode === 'posts' && a.image ? (
-              <div className="relative h-40 w-full flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-32 sm:w-48">
-                <Image
-                  src={a.image}
-                  alt={a.imageAlt ?? a.title}
-                  fill
-                  className="object-cover transition duration-300 group-hover:scale-105"
-                  sizes="(min-width: 1024px) 192px, 50vw"
-                />
-              </div>
-            ) : null}
+      {/* List atau Empty State */}
+      {items.length === 0 ? (
+        <p className="mt-8 text-sm text-zinc-500 dark:text-zinc-400">
+          {mode === 'snippets'
+            ? 'Belum ada snippet untuk ditampilkan.'
+            : 'Belum ada artikel untuk ditampilkan.'}
+        </p>
+      ) : (
+        <div className="mt-8 space-y-10">
+          {items.map((a) => (
+            <article
+              key={a.id}
+              className={clsx(
+                'flex flex-col gap-6 sm:flex-row',
+                mode === 'posts'
+                  ? 'items-start'
+                  : 'items-center sm:items-start',
+              )}
+            >
+              {/* Thumbnail: render hanya jika ada gambar (khusus posts) */}
+              {mode === 'posts' && a.image ? (
+                <div className="relative h-40 w-full flex-shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-32 sm:w-48">
+                  <Image
+                    src={a.image}
+                    alt={a.imageAlt ?? a.title}
+                    fill
+                    className="object-cover transition duration-300 group-hover:scale-105"
+                    sizes="(min-width: 1024px) 192px, 50vw"
+                  />
+                </div>
+              ) : null}
 
-            {/* Content */}
-            <div className="flex flex-1 flex-col justify-between">
-              <div>
-                <div className="mb-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {formatDate(a.date)}
-                  {a.readTime ? <> • {a.readTime}</> : null}
+              {/* Content */}
+              <div className="flex flex-1 flex-col justify-between">
+                <div>
+                  <div className="mb-1 text-sm text-zinc-500 dark:text-zinc-400">
+                    {formatDate(a.date)}
+                    {a.readTime ? <> • {a.readTime}</> : null}
+                  </div>
+
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                    <Link href={a.href} className="hover:underline">
+                      {a.title}
+                    </Link>
+                  </h3>
+
+                  <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                    {a.description}
+                  </p>
                 </div>
 
-                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                  <Link href={a.href} className="hover:underline">
-                    {a.title}
+                <div className="mt-3 flex items-center justify-between">
+                  <Link
+                    href={a.href}
+                    className="inline-flex items-center gap-1 text-sm font-semibold text-yellow-700 hover:opacity-80 dark:text-yellow-400"
+                  >
+                    Read more →
                   </Link>
-                </h3>
 
-                <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                  {a.description}
-                </p>
+                  {!!a.tags?.length && (
+                    <div className="flex flex-wrap gap-2">
+                      {a.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-md bg-zinc-200 px-2 py-1 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-
-              <div className="mt-3 flex items-center justify-between">
-                <Link
-                  href={a.href}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-yellow-700 hover:opacity-80 dark:text-yellow-400"
-                >
-                  Read more →
-                </Link>
-
-                {!!a.tags?.length && (
-                  <div className="flex flex-wrap gap-2">
-                    {a.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-md bg-zinc-200 px-2 py-1 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
     </section>
   )
 }

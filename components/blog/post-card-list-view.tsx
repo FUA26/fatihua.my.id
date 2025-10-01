@@ -1,5 +1,5 @@
 import { TagsList } from '@/components/blog/tags'
-import { GritBackground } from '@/components/ui/grit-background'
+// import { GritBackground } from '@/components/ui/grit-background'
 import { GrowingUnderline } from '@/components/ui/growing-underline'
 import { Image } from '@/components/ui/image'
 import { Link } from '@/components/ui/link'
@@ -41,12 +41,12 @@ export function PostCardListView({
             className="aspect-video h-full w-full rounded-xl shadow-2xl"
             loading={loading}
           />
-          <GritBackground
+          {/* <GritBackground
             className={clsx([
               'top-3 right-0 bottom-0 left-3',
               'rounded-xl border-2 border-gray-800 dark:border-gray-400',
             ])}
-          />
+          /> */}
         </Link>
         <div className="space-y-4 md:space-y-5">
           <div className="space-y-4 md:space-y-6">

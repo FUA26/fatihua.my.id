@@ -1,0 +1,195 @@
+---
+title: 'Building a Scalable Next.js App – Part 3: Optimizing Workflow with Husky and Commitlint'
+date: '2025-07-01'
+tags: ['Mext.js', 'Workflow', 'Husky', 'Commitlint']
+draft: false
+images: ['/static/images/banners/selective-focus-photography-of-black-and-white-wolf-with-black-dog-leash__xavortm__KGy1GFeKBu4.jpg']
+summary: Learn how to automate code quality checks in your Next.js projects using Husky and Commitlint. This guide demonstrates how to enforce consistent code formatting and standardized commit messages before code is committed to your repository.
+---
+### 🧩 **Introduction**
+
+In my previous post, I talked about how ESLint and Prettier help maintain code consistency in a Next.js project. But even with these tools set up, there's still a risk of inconsistent code being committed to the repository. This is where **Husky** and **lint-staged** come in.
+
+Husky allows us to run scripts at different stages of the Git workflow, such as before committing or pushing code. Meanwhile, lint-staged ensures that these scripts run only on the files that are being committed, making the process efficient and fast. By using these tools, we can enforce code quality checks before code even gets into the repository.
+
+In this guide, I'll walk you through how to integrate Husky and lint-staged into your Next.js project to automate code linting and formatting before commits.
+
+---
+
+### 📋 **Prerequisites**
+
+Before you get started, there are a few things you'll need to prepare for this guide:
+
+1. Node.js and package manager: Make sure you have Node.js installed on your system, which comes with npm (Node Package Manager). If not, you can install it from the official Node.js website.
+2. Next.js project: You must have already created a Next.js project. It is recommended that you read the official Next.js documentation for a deeper understanding of Next.js project concepts and settings.
+3. Basic Knowledge of Git: Familiarity with Git and its command-line interface will be helpful.
+
+With these requirements in place, you are ready to move on to the next step.
+
+---
+
+## ⚙️ Step-by-Step Setup
+
+### 1. Initialize Your Project
+
+```bash
+pnpm init
+```
+
+### 2. Install Dev Dependencies
+
+```bash
+pnpm add -D husky @commitlint/cli @commitlint/config-conventional
+```
+
+---
+
+### 3. Add Husky `prepare` Script
+
+In your `package.json`, add:
+
+```json
+"scripts": {
+  "prepare": "husky"
+}
+```
+
+Then, enable Git hooks via:
+
+```bash
+git config core.hooksPath .husk
+```
+
+> Note: In Husky v8+, husky install and husky add are deprecated. Hooks should be created manually.
+> 
+
+---
+
+### 4. Add Git Hooks Manually
+
+### ✅ Pre-commit Hook
+
+Create the file:
+
+```bash
+mkdir -p .husky
+touch .husky/pre-commit
+chmod +x .husky/pre-commit
+```
+
+```
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+pnpm lint
+```
+
+Then add this content:
+
+### ✅ Commit-msg Hook
+
+Create the file:
+
+```bash
+touch .husky/commit-msg
+chmod +x .husky/commit-msg
+```
+
+Add the following:
+
+```bash
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+pnpm exec commitlint --edit "$1"
+```
+
+> Missing husky.sh? Add it manually:
+> 
+
+```bash
+mkdir -p .husky/_
+curl -o .husky/_/husky.sh https://raw.githubusercontent.com/typicode/husky/main/.husky/_/husky.sh
+chmod +x .husky/_/husky.sh
+```
+
+---
+
+### 5. Configure Commitlint
+
+Create `commitlint.config.js`:
+
+```jsx
+module.exports = {
+  extends: ["@commitlint/config-conventional"],
+  rules: {
+    "subject-case": [0, "never"],         // Allow sentence-case or PascalCase
+    "references-empty": [0, "never"],     // No issue number required
+    "footer-max-line-length": [0, "always"],
+    "body-max-line-length": [0, "always"],
+  },
+};
+```
+
+---
+
+### 6. (Optional) Enable Commitizen
+
+If you want guided commit prompts:
+
+```bash
+pnpm add -D commitizen
+pnpm dlx commitizen init cz-conventional-changelog --save-dev --save-exact
+```
+
+Then add a script in `package.json`:
+
+```json
+"scripts": {
+  "commit": "cz"
+}
+```
+
+Now use:
+
+```bash
+pnpm commit
+```
+
+---
+
+## ✅ Valid Commit Examples
+
+```bash
+feat(auth): Add Google Sign-in integration
+
+Allow users to log in with their Google account.
+```
+
+```bash
+chore: Add commitlint configuration and Husky hooks for commit message validation
+```
+
+---
+
+## 📁 Final Folder Structure
+
+```
+.husky/
+  ├─ _/
+  │  └─ husky.sh
+  ├─ pre-commit
+  └─ commit-msg
+```
+
+---
+
+## 🎯 Conclusion
+
+With this setup, you’ve:
+
+- Automated code linting before each commit.
+- Enforced consistent, readable commit messages.
+- Built a solid foundation for CI/CD and changelog generation.
+
+This workflow not only improves collaboration in your team but also ensures high-quality and maintainable codebases — all with minimal effort.

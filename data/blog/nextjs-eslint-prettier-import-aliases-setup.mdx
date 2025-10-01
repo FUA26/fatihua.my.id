@@ -1,0 +1,444 @@
+---
+title: 'Building a Scalable Next.js App – Part 2: ESLint, Prettier, and Import Aliases Made Simple'
+date: '2025-06-29'
+tags: ['NextJS', 'ESLint', 'Prettier', 'TypeScript', 'React', 'Boilerplate']
+draft: false
+images: ['/static/images/banners/aerial-photo-of-people-in-park-at-daytime__saadx__PqRvLsjD_TU.jpg']
+summary: A comprehensive guide to setting up ESLint, Prettier, and import aliases in a Next.js application for improved code quality, consistent formatting, and better developer experience across teams.
+---
+### 🧩 **Introduction**
+
+Maintaining a clean codebase is not just a nice-to-have — it's essential for long-term scalability, especially in team environments. In this post, I’ll walk you through how I configure **ESLint**, **Prettier**, and **absolute imports** in my Next.js apps to enforce consistent standards and improve developer productivity.
+
+These tools help catch bugs early, automate code formatting, and make imports more readable — forming the backbone of any well-structured enterprise-grade application.
+
+---
+
+## 📋 Prerequisites
+
+Before we begin, make sure you’ve:
+
+- Followed [Part 1](https://www.notion.so/Building-a-Scalable-Next-js-App-ESLint-Prettier-and-Import-Aliases-Made-Simple-1d683dc517878006a964d83dbcce3a81?pvs=21) and initialized your Next.js 14 project
+- Basic understanding of TypeScript
+- Node.js (v18+) and npm installed
+- Familiarity with terminal and code editors (like VS Code)
+
+---
+
+## ⚙️ Absolute Imports (a.k.a. Import Aliases)
+
+By default, Next.js forces you to write relative imports like:
+
+```tsx
+import Button from '../../../components/ui/Button';
+```
+
+This gets messy fast. Let’s fix that.
+
+### Step 1: Open `tsconfig.json`
+
+Inside the root of your project, update the config like so:
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}
+```
+
+> This allows you to use @/ as an alias to the root folder.
+> 
+
+### Step 2: Use the Alias
+
+Now you can import files like this:
+
+```tsx
+import Button from '@/components/ui/Button';
+```
+
+### Optional: Alias Intellisense in VS Code
+
+Make sure your `jsconfig.json` or `tsconfig.json` is properly configured so VS Code doesn’t show errors or squiggles.
+
+---
+
+## ✅ ESLint Configuration (Extended Setup with Accessibility, Tailwind, and Prettier)
+
+My ESLint setup is designed to ensure clean, readable, accessible, and maintainable code — right out of the gate. It combines popular linting rules and best practices, tailored for modern React + TailwindCSS + TypeScript apps.
+
+```tsx
+import * as fs from "fs";
+
+import eslintPluginImport from "eslint-plugin-import";
+import eslintPluginNext from "@next/eslint-plugin-next";
+// import eslintPluginTailwindcss from "eslint-plugin-tailwindcss"; // Peer conflict with Tailwind v4+
+import typescriptEslint from "typescript-eslint";
+import eslintPluginReact from "eslint-plugin-react";
+import eslintPluginReactHooks from "eslint-plugin-react-hooks";
+import eslintPluginJsxA11y from "eslint-plugin-jsx-a11y";
+import eslintPluginPrettier from "eslint-plugin-prettier";
+import eslintPluginUnusedImports from "eslint-plugin-unused-imports";
+
+const eslintIgnore = [
+  ".git/",
+  ".next/",
+  "node_modules/",
+  "dist/",
+  "build/",
+  "coverage/",
+  "*.min.js",
+  "*.config.js",
+  "*.d.ts",
+];
+
+const config = typescriptEslint.config(
+  {
+    ignores: eslintIgnore,
+  },
+
+  // ...eslintPluginTailwindcss.configs["flat/recommended"], // 🔕 disabled due to peer deps
+  typescriptEslint.configs.recommended,
+  eslintPluginImport.flatConfigs.recommended,
+  {
+    plugins: {
+      "@next/next": eslintPluginNext,
+    },
+    rules: {
+      ...eslintPluginNext.configs.recommended.rules,
+      ...eslintPluginNext.configs["core-web-vitals"].rules,
+    },
+  },
+  {
+    plugins: {
+      react: eslintPluginReact,
+      "react-hooks": eslintPluginReactHooks,
+      "jsx-a11y": eslintPluginJsxA11y,
+      prettier: eslintPluginPrettier,
+      "unused-imports": eslintPluginUnusedImports,
+      // tailwindcss: eslintPluginTailwindcss,
+    },
+    settings: {
+      react: {
+        version: "detect",
+      },
+      tailwindcss: {
+        callees: ["classnames", "clsx", "ctl", "cn", "cva"],
+        // config: "tailwind.config.js",
+        // prependCustom: false,
+        // removeDuplicates: true,
+      },
+      "import/resolver": {
+        typescript: true,
+        node: true,
+      },
+    },
+    rules: {
+      "no-console": "warn",
+      "react/prop-types": "off",
+      "react/jsx-uses-react": "off",
+      "react/react-in-jsx-scope": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "jsx-a11y/click-events-have-key-events": "warn",
+      "jsx-a11y/interactive-supports-focus": "warn",
+      "prettier/prettier": "warn",
+      "no-unused-vars": "off",
+      "unused-imports/no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "warn",
+      "object-curly-spacing": ["error", "never"],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          args: "after-used",
+          ignoreRestSiblings: false,
+          argsIgnorePattern: "^_.*?$",
+        },
+      ],
+      "sort-imports": [
+        "error",
+        {
+          ignoreCase: true,
+          ignoreDeclarationSort: true,
+        },
+      ],
+      "import/order": [
+        "warn",
+        {
+          groups: ["external", "builtin", "internal", "sibling", "parent", "index"],
+          pathGroups: [
+            ...getDirectoriesToSort().map((singleDir) => ({
+              pattern: `${singleDir}/**`,
+              group: "internal",
+            })),
+            {
+              pattern: "env",
+              group: "internal",
+            },
+            {
+              pattern: "theme",
+              group: "internal",
+            },
+            {
+              pattern: "public/**",
+              group: "internal",
+              position: "after",
+            },
+          ],
+          pathGroupsExcludedImportTypes: ["internal"],
+          alphabetize: {
+            order: "asc",
+            caseInsensitive: true,
+          },
+        },
+      ],
+      "react/self-closing-comp": "warn",
+      "react/jsx-sort-props": [
+        "warn",
+        {
+          callbacksLast: true,
+          shorthandFirst: true,
+          noSortAlphabetically: false,
+          reservedFirst: true,
+        },
+      ],
+      // "tailwindcss/no-custom-classname": "off",
+      // "tailwindcss/classnames-order": "off",
+      // "tailwindcss/no-contradicting-classname": "error",
+      "padding-line-between-statements": [
+        "warn",
+        {blankLine: "always", prev: "*", next: "return"},
+        {blankLine: "always", prev: ["const", "let", "var"], next: "*"},
+        {
+          blankLine: "any",
+          prev: ["const", "let", "var"],
+          next: ["const", "let", "var"],
+        },
+      ],
+    },
+  },
+);
+
+function getDirectoriesToSort() {
+  const ignoredSortingDirectories = [".git", ".next", ".vscode", "node_modules"];
+  return fs
+    .readdirSync(process.cwd())
+    .filter((file) => fs.statSync(process.cwd() + "/" + file).isDirectory())
+    .filter((f) => !ignoredSortingDirectories.includes(f));
+}
+
+export default config;
+
+```
+
+---
+
+### 🔍 Highlights and Explanation
+
+| Feature | Description |
+| --- | --- |
+| `typescript-eslint.configs.recommended` | Base rules for TypeScript support |
+| `@next/eslint-plugin-next` | Enforces best practices for Next.js (including Core Web Vitals) |
+| `react` / `react-hooks` | Helps with JSX rules, proper hooks usage |
+| `jsx-a11y` | Accessibility rules for JSX elements |
+| `prettier` | Integrates Prettier formatting with ESLint rules |
+| `unused-imports` | Detects and optionally removes unused imports |
+| `import/order` | Sorts imports consistently |
+| `getDirectoriesToSort()` | Dynamically sorts internal imports based on top-level folders |
+
+```bash
+npm i -D eslint-plugin-import typescript-eslint eslint-plugin-react eslint-plugin-react-hooks eslint-plugin-jsx-a11y eslint-plugin-prettier eslint-plugin-unused-imports
+```
+
+---
+
+### 🧩 Dynamic Import Sorting with `import/order`
+
+This config dynamically determines top-level folders (like `lib/`, `components/`, `hooks/`) and tells ESLint to group them properly:
+
+```
+"import/order": [
+  "warn",
+  {
+    groups: ["external", "builtin", "internal", "sibling", "parent", "index"],
+    pathGroups: [
+      ...getDirectoriesToSort().map((dir) => ({
+        pattern: `${dir}/**`,
+        group: "internal",
+      })),
+      {pattern: "env", group: "internal"},
+      {pattern: "theme", group: "internal"},
+      {pattern: "public/**", group: "internal", position: "after"},
+    ],
+    alphabetize: {
+      order: "asc",
+      caseInsensitive: true
+    }
+  }
+]
+```
+
+> 🔧 getDirectoriesToSort() reads all non-ignored top-level folders dynamically, so this config stays consistent even as your app grows.
+> 
+
+---
+
+### 🧼 Additional Rules and Goodies
+
+- `"no-console": "warn"` – Encourages removing `console.log` in production
+- `"react/jsx-sort-props"` – Sorts props by shorthand and callback order
+- `"padding-line-between-statements"` – Enforces spacing between `const` and `return` for readability
+- `"@typescript-eslint/no-unused-vars"` – Flags unused variables, but allows `_` prefixes
+- `"unused-imports/no-unused-imports"` – Flags dead imports for easy cleanup
+
+---
+
+### 🛠 Flat Config Folder Ignore
+
+You also ignore irrelevant folders like:
+
+```tsx
+const eslintIgnore = [
+  ".git/",
+  ".next/",
+  "node_modules/",
+  "dist/",
+  "build/",
+  "coverage/"
+  "*.min.js",
+  "*.config.js",
+  "*.d.ts",
+];
+```
+
+---
+
+### ⚠️ Plugin Compatibility Note
+
+Please note that some ESLint plugins might have compatibility issues with newer versions of their dependencies. For example:
+
+```tsx
+// import eslintPluginTailwindcss from "eslint-plugin-tailwindcss";
+// ...eslintPluginTailwindcss.configs["flat/recommended"],
+```
+
+> Code is commented out because the plugin might not be fully compatible with your project's dependencies. Always check the latest compatibility information before enabling plugins.
+> 
+
+---
+
+## 🎯 Prettier Setup (Tailored Formatting + Tailwind Plugin)
+
+To ensure consistent and automatic formatting across the entire codebase, I configure Prettier with rules that match our team style — plus a Tailwind plugin to sort class names intelligently.
+
+This helps keep both your JavaScript/TypeScript and CSS utility classes clean, readable, and standardized.
+
+### 🧩 Step 1: Install Prettier + Tailwind Plugin
+
+```bash
+npm install -D prettier prettier-plugin-tailwindcss
+```
+
+---
+
+### 📄 Step 2: Create `.prettierrc`
+
+```json
+{
+  "$schema": "https://json.schemastore.org/prettierrc.json",
+  "tabWidth": 2,
+  "printWidth": 100,
+  "semi": true,
+  "useTabs": false,
+  "singleQuote": false,
+  "bracketSpacing": false,
+  "endOfLine": "auto",
+  "arrowParens": "always",
+  "trailingComma": "all",
+  "plugins": ["prettier-plugin-tailwindcss"]
+}
+
+```
+
+### 🔍 What This Does:
+
+| Rule | Description |
+| --- | --- |
+| `tabWidth: 2` | Use 2 spaces per indentation level |
+| `printWidth: 100` | Wrap lines that exceed 100 characters |
+| `semi: true` | Always add semicolons |
+| `useTabs: false` | Use spaces instead of tabs |
+| `singleQuote: false` | Prefer double quotes (common in HTML-like JSX) |
+| `bracketSpacing: false` | No spaces inside object literals: `{a:1}` not `{ a: 1 }` |
+| `arrowParens: "always"` | Always include parentheses in arrow functions |
+| `trailingComma: "all"` | Adds trailing commas where valid in ES5 |
+| `plugins: ["prettier-plugin-tailwindcss"]` | Automatically sorts Tailwind utility classes |
+
+---
+
+### 📁 Step 3: Create `.prettierignore`
+
+This tells Prettier which files/folders **not** to format:
+
+```
+dist
+node_modules
+.next
+build
+scripts
+```
+
+> This keeps build output, dependencies, and auxiliary files out of the formatting pipeline.
+> 
+
+---
+
+### 🛠 Optional: Add Format Script in `package.json`
+
+For quick formatting via CLI:
+
+```json
+"scripts": {
+  "format": "prettier --write ."
+}
+
+```
+
+You can now run:
+
+```bash
+npm run format
+```
+
+To format your entire codebase in one go.
+
+---
+
+### 🧠 Auto-format on Save (VS Code)
+
+Add this to your `.vscode/settings.json` for full formatting automation:
+
+```json
+
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+
+```
+
+## 🧠 Conclusion
+
+Setting up **ESLint**, **Prettier**, and **absolute imports** early in your Next.js project isn’t just about enforcing rules — it’s about building a foundation for scalable, readable, and maintainable code.
+
+With this setup, you now have:
+
+- ✅ **Absolute imports** to eliminate messy relative paths
+- ✅ **ESLint Flat Config** with custom rules for React, accessibility, imports, and formatting
+- ✅ **Prettier** integrated with Tailwind CSS class sorting for clean UI code
+- ✅ Smart automation for catching unused code and enforcing consistent styling
+
+These tools work together to reduce friction in your development workflow — whether you're coding solo or as part of a team.

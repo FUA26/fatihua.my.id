@@ -3,29 +3,33 @@
 import { Twemoji } from '@/components/ui/twemoji'
 import type { SelectStats, StatsType } from '@/db/schema'
 import { useBlogStats, useUpdateBlogStats } from '@/hooks/use-blog-stats'
-import { clsx } from 'clsx'
+import clsx from 'clsx'
 import { useEffect, useRef, useState } from 'react'
 
-const MAX_REACTIONS = 10
+const MAX_REACTIONS = 10 as const
 
-const REACTIONS: Array<{ emoji: string; key: keyof SelectStats }> = [
-  {
-    emoji: 'sparkling-heart',
-    key: 'loves',
-  },
-  {
-    emoji: 'clapping-hands',
-    key: 'applauses',
-  },
-  {
-    emoji: 'bullseye',
-    key: 'bullseyes',
-  },
-  {
-    emoji: 'light-bulb',
-    key: 'ideas',
-  },
+type ReactionKey = 'loves' | 'applauses' | 'bullseyes' | 'ideas'
+type ReactionMap = Record<ReactionKey, number>
+
+const ZERO_MAP: ReactionMap = {
+  loves: 0,
+  applauses: 0,
+  bullseyes: 0,
+  ideas: 0,
+}
+
+const REACTIONS: Array<{ emoji: string; key: ReactionKey }> = [
+  { emoji: 'sparkling-heart', key: 'loves' },
+  { emoji: 'clapping-hands', key: 'applauses' },
+  { emoji: 'bullseye', key: 'bullseyes' },
+  { emoji: 'light-bulb', key: 'ideas' },
 ]
+
+// Paksa nilai jadi number finite (kalau tidak, pakai fallback)
+function toNum(v: unknown, fallback = 0): number {
+  const n = Number(v)
+  return Number.isFinite(n) ? n : fallback
+}
 
 export function Reactions({
   type,
@@ -36,50 +40,62 @@ export function Reactions({
   slug: string
   className?: string
 }) {
-  let [stats, isLoading] = useBlogStats(type, slug)
-  let updateReaction = useUpdateBlogStats()
-  let [initialReactions, setInitialReactions] = useState({})
-  let [reactions, setReactions] = useState({})
+  const [stats, isLoading] = useBlogStats(type, slug)
+  const updateReaction = useUpdateBlogStats()
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const [initialReactions, setInitialReactions] =
+    useState<ReactionMap>(ZERO_MAP)
+  const [reactions, setReactions] = useState<ReactionMap>(ZERO_MAP)
+
+  // Load cache dari localStorage
   useEffect(() => {
     try {
-      let data = JSON.parse(localStorage.getItem(`${type}/${slug}`) || '{}')
-      data.loves = data.loves || 0
-      data.applauses = data.applauses || 0
-      data.ideas = data.ideas || 0
-      data.bullseyes = data.bullseyes || 0
-      setInitialReactions(Object.assign({}, data))
-      setReactions(Object.assign({}, data))
-    } catch (e) {}
-  }, [])
+      const raw = localStorage.getItem(`${type}/${slug}`)
+      const data = raw ? JSON.parse(raw) : {}
+      const next: ReactionMap = {
+        loves: toNum(data?.loves, 0),
+        applauses: toNum(data?.applauses, 0),
+        ideas: toNum(data?.ideas, 0),
+        bullseyes: toNum(data?.bullseyes, 0),
+      }
+      setInitialReactions({ ...next })
+      setReactions({ ...next })
+    } catch {
+      // abaikan
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [type, slug])
 
-  function handleChange(key: string) {
-    updateReaction({
-      type,
-      slug,
-      [key]: stats[key] + reactions[key] - initialReactions[key],
-    })
+  function handleSave(key: ReactionKey) {
+    const base = toNum((stats as any)?.[key], 0)
+    const curr = toNum(reactions[key], 0)
+    const init = toNum(initialReactions[key], 0)
+    // kirim delta ke server
+    updateReaction({ type, slug, [key]: base + curr - init } as any)
+    // simpan cache
     localStorage.setItem(`${type}/${slug}`, JSON.stringify(reactions))
   }
 
   return (
     <div className={clsx('flex items-center gap-6', className)}>
-      {REACTIONS.map(({ key, emoji }) => (
-        <Reaction
-          key={key as string}
-          path={`${type}/${slug}`}
-          react={{ emoji, key }}
-          value={
-            isLoading
-              ? '--'
-              : stats[key] + reactions[key] - initialReactions[key]
-          }
-          reactions={reactions[key]}
-          onReact={(v) => setReactions((r) => ({ ...r, [key]: v }))}
-          onSave={() => handleChange(key as string)}
-        />
-      ))}
+      {REACTIONS.map(({ key, emoji }) => {
+        const base = toNum((stats as any)?.[key], 0)
+        const curr = toNum(reactions[key], 0)
+        const init = toNum(initialReactions[key], 0)
+        const value = isLoading ? '--' : base + curr - init
+
+        return (
+          <Reaction
+            key={key}
+            path={`${type}/${slug}`}
+            react={{ emoji, key }}
+            value={value}
+            reactions={curr}
+            onReact={(v) => setReactions((r) => ({ ...r, [key]: v }))}
+            onSave={() => handleSave(key)}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -93,49 +109,46 @@ function Reaction({
   onSave,
 }: {
   path: string
-  react: (typeof REACTIONS)[number]
+  react: { emoji: string; key: ReactionKey }
   value: string | number
   reactions: number
   onReact: (v: number) => void
   onSave: () => void
 }) {
-  let { emoji, key } = react
-  let [reacting, setReacting] = useState(false)
-  let countRef = useRef<HTMLSpanElement>(null)
+  const { emoji, key } = react
+  const [reacting, setReacting] = useState(false)
+  const countRef = useRef<HTMLSpanElement>(null)
   let reactingTimeoutId: ReturnType<typeof setTimeout> | undefined
 
   function handleReact() {
     if (typeof value === 'number') {
-      if (reactingTimeoutId) {
-        clearTimeout(reactingTimeoutId)
-      }
+      if (reactingTimeoutId) clearTimeout(reactingTimeoutId)
       setReacting(true)
-      let newReactions =
-        reactions >= MAX_REACTIONS ? MAX_REACTIONS : reactions + 1
-      onReact(newReactions)
-      if (countRef.current) {
-        if (reactions >= MAX_REACTIONS) {
-          countRef.current.classList.add('animate-scale-up')
-          setTimeout(() => {
-            if (countRef.current) {
-              countRef.current.classList.remove('animate-scale-up')
-            }
-          }, 150)
-        }
+
+      const safeCurr = toNum(reactions, 0)
+      const next = Math.min(MAX_REACTIONS, safeCurr + 1)
+      onReact(next)
+
+      if (countRef.current && safeCurr >= MAX_REACTIONS) {
+        countRef.current.classList.add('animate-scale-up')
+        setTimeout(() => {
+          countRef.current?.classList.remove('animate-scale-up')
+        }, 150)
       }
     }
   }
 
   function handleMouseLeave() {
-    if (typeof value === 'number') {
-      if (reacting) {
-        reactingTimeoutId = setTimeout(() => {
-          setReacting(false)
-          onSave()
-        }, 1000)
-      }
+    if (typeof value === 'number' && reacting) {
+      reactingTimeoutId = setTimeout(() => {
+        setReacting(false)
+        onSave()
+      }, 1000)
     }
   }
+
+  const displayValue =
+    typeof value === 'number' && Number.isFinite(value) ? value : '--'
 
   return (
     <button
@@ -157,7 +170,7 @@ function Reaction({
             reacting ? '-translate-y-6 opacity-0' : 'translate-y-0 opacity-100',
           )}
         >
-          {typeof value === 'string' ? '--' : value}
+          {displayValue}
         </span>
         <span
           ref={countRef}
@@ -168,7 +181,7 @@ function Reaction({
             reacting ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0',
           )}
         >
-          +{reactions}
+          +{toNum(reactions, 0)}
         </span>
       </span>
     </button>
