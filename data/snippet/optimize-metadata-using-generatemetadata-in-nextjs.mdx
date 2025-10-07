@@ -1,0 +1,91 @@
+---
+heading: 'Page metadata'
+title: 'Optimize metadata using generateMetadata() in Next.js'
+date: '2025-08-31'
+icon: 'Next.js'
+draft: false
+tags: ['nextjs', 'seo', 'metadata', 'app-router']
+summary: A simple way to generate dynamic page titles and descriptions in the App Router era.
+---
+
+## 🧩 Cerita Singkat
+
+Dulu setiap kali bikin halaman baru di Next.js, aku selalu nambahin `<Head>` manual buat title dan description.  
+Lama-lama capek juga — apalagi kalau halaman blog ada puluhan, belum lagi metadata buat Open Graph dan Twitter.  
+
+Waktu pindah ke **App Router**, aku baru sadar ada cara yang jauh lebih rapih: pakai fungsi `generateMetadata()` bawaan Next.js.  
+Fungsinya jalan di server dan bisa ambil data dulu sebelum nentuin title & deskripsi halaman. Keren banget sih.
+
+---
+
+## ⚙️ Contohnya Gimana?
+
+```tsx
+// app/blog/[slug]/page.tsx
+import { getPostBySlug } from '@/lib/posts'
+
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const post = await getPostBySlug(params.slug)
+
+  if (!post) {
+    return {
+      title: 'Post Not Found',
+      description: 'The requested post could not be found.',
+    }
+  }
+
+  return {
+    title: `${post.title} | Fatih’s Dev Space`,
+    description: post.summary,
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      url: `https://fatihua.my.id/blog/${params.slug}`,
+      images: [
+        {
+          url: post.cover || '/static/images/blogs/default-cover.webp',
+          width: 1200,
+          height: 630,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.summary,
+      images: [post.cover],
+    },
+  }
+}
+
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const post = await getPostBySlug(params.slug)
+  return (
+    <article className="prose dark:prose-invert">
+      <h1>{post.title}</h1>
+      <p className="text-zinc-500 text-sm">{post.date}</p>
+      <div dangerouslySetInnerHTML={{ __html: post.content }} />
+    </article>
+  )
+}
+```
+
+---
+
+## 💡 Intinya
+
+- `generateMetadata()` cuma jalan di **server**, jadi aman buat ambil data dari DB atau API.  
+- Bisa akses `params` dan `searchParams` biar metadata-nya dinamis.  
+- Ngga perlu lagi nulis `<Head>` satu-satu di tiap halaman.  
+- Support SEO bawaan kayak `openGraph` & `twitter` meta tag, tinggal isi aja.
+
+---
+
+## ✨ Catatan Pribadi
+
+Begitu pakai fungsi ini, aku langsung bersih-bersih semua `<Head>` lama.  
+Sekarang tiap halaman blog otomatis punya title dan description yang sesuai artikelnya — ngga perlu lagi copy-paste meta tag manual.
+
+Selain hemat waktu, keliatan lebih rapi juga di kodebase.  
+Kalau kamu pakai Next.js App Router dan belum coba `generateMetadata()`, cobain deh. Serius, hidup jadi lebih tenang 😆

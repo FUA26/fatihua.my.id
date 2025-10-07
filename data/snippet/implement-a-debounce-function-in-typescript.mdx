@@ -1,0 +1,53 @@
+---
+heading: 'Debounce function'
+title: 'Implement a debounce function in TypeScript'
+date: '2025-08-07'
+icon: 'Typescript'
+draft: false
+tags: ['typescript', 'debounce', 'utility']
+summary: Prevent functions from running too frequently using a simple debounce helper.
+---
+
+## ⏳ Cerita Singkat
+
+Kadang waktu ngetik di kolom pencarian, setiap huruf langsung nge-trigger request ke server.  
+Hasilnya? API jadi kewalahan 😅. Nah, biar gak nembak terlalu sering, kita bisa pakai teknik **debounce** — cuma jalan kalau user berhenti ngetik beberapa saat.
+
+---
+
+## ⚙️ Contohnya
+
+```ts
+// utils/debounce.ts
+export function debounce<T extends (...args: any[]) => void>(fn: T, delay = 300) {
+  let timeoutId: ReturnType<typeof setTimeout>
+
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(() => fn(...args), delay)
+  }
+}
+```
+
+Pemakaian sederhana:
+
+```ts
+const handleSearch = debounce((query: string) => {
+  console.log("Searching for:", query)
+}, 500)
+```
+
+---
+
+## 💡 Intinya
+
+- Debounce menunda eksekusi fungsi sampai user berhenti melakukan aksi dalam jangka waktu tertentu.  
+- Cocok buat pencarian realtime, resize event, atau scroll listener.  
+- Hemat resource dan bikin UI terasa lebih halus.
+
+---
+
+## ✨ Catatan Pribadi
+
+Aku hampir selalu pakai debounce di input pencarian — terutama waktu mainan API publik.  
+Cuma butuh beberapa baris kode, tapi efeknya bisa bikin performa UI berasa jauh lebih responsif 🚀.

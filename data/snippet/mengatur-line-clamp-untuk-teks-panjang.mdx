@@ -1,0 +1,53 @@
+---
+heading: 'Line clamp'
+title: 'Mengatur Line-Clamp untuk Teks Panjang'
+date: '2025-08-01'
+icon: 'TailwindCSS'
+draft: false
+tags: ['tailwind', 'css', 'text', 'ui']
+summary: Potong teks panjang secara elegan menggunakan utility line-clamp bawaan Tailwind CSS.
+---
+
+## ✂️ Cerita Singkat
+
+Kadang teks di kartu atau deskripsi artikel kepanjangan banget sampai ngerusak layout.  
+Daripada ngebatesin pakai JavaScript, kita bisa pakai **line-clamp** dari Tailwind CSS — simple banget tapi hasilnya rapi.
+
+---
+
+## ⚙️ Contohnya
+
+Pastikan plugin `@tailwindcss/line-clamp` sudah aktif di konfigurasi kamu:
+
+```js
+// tailwind.config.js
+module.exports = {
+  theme: {
+    extend: {},
+  },
+  plugins: [require('@tailwindcss/line-clamp')],
+}
+```
+
+Lalu tinggal pakai di elemen teks:
+
+```html
+<p class="line-clamp-2 text-zinc-700">
+  Ini contoh teks panjang banget yang bakal otomatis dipotong setelah dua baris.
+</p>
+```
+
+---
+
+## 💡 Intinya
+
+- Gunakan `line-clamp-{n}` untuk menentukan jumlah baris maksimum.  
+- Teks otomatis dipotong dan ditambah ellipsis (`...`).  
+- Cocok untuk card, preview artikel, atau deskripsi produk.
+
+---
+
+## ✨ Catatan Pribadi
+
+Aku sering pakai `line-clamp-2` atau `line-clamp-3` di komponen card biar layout tetap bersih.  
+Gak perlu JS, cukup utility bawaan. Simple dan efisien banget 💨.

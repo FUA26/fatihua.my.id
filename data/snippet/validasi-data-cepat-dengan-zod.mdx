@@ -1,0 +1,80 @@
+---
+heading: 'Zod validation'
+title: 'Validasi Data Cepat dengan Zod'
+date: '2025-9-8'
+icon: 'Zod'
+draft: false
+tags: ['zod', 'validation', 'typescript']
+summary: Tulis skema validasi deklaratif di TypeScript dan validasi data dengan cepat menggunakan Zod.
+---
+
+## ⚡ Kenapa Zod?
+Butuh validasi yang cepat, ketat, dan enak dipakai di TypeScript? **Zod** biar skema data jadi satu sumber kebenaran: untuk **validasi runtime** dan **tipe statis** sekaligus.
+
+---
+
+## 🚀 Instalasi
+```bash
+pnpm add zod
+# atau
+npm i zod
+```
+
+---
+
+## 🧩 Contoh Skema & Validasi
+```ts
+import { z } from 'zod'
+
+// 1) Definisikan skema
+export const userSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(2, 'Nama terlalu pendek'),
+  email: z.string().email('Email tidak valid'),
+  age: z.number().int().min(1).max(120).optional(),
+  roles: z.array(z.enum(['admin', 'user'])).default(['user']),
+})
+
+// 2) Dapatkan tipe TS dari skema (biar autocomplete enak)
+export type User = z.infer<typeof userSchema>
+
+// 3) Validasi data (aman di runtime)
+export function validateUser(input: unknown) {
+  const result = userSchema.safeParse(input)
+  if (!result.success) {
+    // Format error yang lebih rapi
+    const issues = result.error.issues.map(i => ({
+      path: i.path.join('.'),
+      message: i.message,
+    }))
+    return { ok: false, issues }
+  }
+  return { ok: true, data: result.data satisfies User }
+}
+```
+
+Pemakaian:
+```ts
+const payload = {
+  id: '9a2f1d19-4a42-4d8e-a9e6-7b1a6b2d9f11',
+  name: 'Fatih',
+  email: 'hi@fatihua.my.id',
+}
+
+const res = validateUser(payload)
+if (!res.ok) console.log(res.issues)
+else console.log('valid!', res.data)
+```
+
+---
+
+## 💡 Tips Singkat
+- Gunakan `refine()` untuk aturan kustom (misal password confirm).
+- `transform()` berguna untuk normalisasi (misal trim, toLowerCase).
+- `strict()` untuk menolak field asing.
+- Dengan `z.infer`, tipe selalu sinkron dengan skema — no more drift.
+
+---
+
+## ✨ Catatan Pribadi
+Aku suka pakai `safeParse()` biar gak ngelempar error ke atas. Error list dari Zod enak di-mapping ke UI form — cepat dan bersih.
